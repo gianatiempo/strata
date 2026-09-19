@@ -6,6 +6,12 @@ It takes a deliberate position on that: **the site never argues that the range b
 
 Live example: **[arielgianatiempo.com](https://arielgianatiempo.com)**
 
+| Day                                                       | Night                                                   |
+| --------------------------------------------------------- | ------------------------------------------------------- |
+| ![The home page in the light theme](docs/hero-light.webp) | ![The same page in the dark theme](docs/hero-dark.webp) |
+
+_The home page at 1440px. One palette per theme, both declared in `tokens.css`; the drifting field behind the type is the site's only canvas._
+
 Almost no client JavaScript. One inline script sets the theme before first paint, a small bundle covers view transitions and the mobile menu, and one canvas draws the drifting field behind the page. Theming, motion, sidenotes, the reading-progress rail and the spine are pure CSS.
 
 ---
@@ -25,6 +31,7 @@ Almost no client JavaScript. One inline script sets the theme before first paint
 11. [Deploying](#deploying)
 12. [Gotchas](#gotchas)
 13. [File map](#file-map)
+14. [License](#license)
 
 ---
 
@@ -56,7 +63,7 @@ Work through these in order. Everything listed here is copy or configuration; no
 | Site URL (canonical tags, sitemap, RSS, OG image URLs) | `astro.config.mjs` → `site`                            |
 | Title, description, email, posts-on-homepage count     | `src/lib/consts.ts` → `SITE`                           |
 | Favicons                                               | `public/favicon-32.png`, `public/favicon-180.png`      |
-| Browser chrome colour                                  | `src/Layout.astro` → the two `theme-color` meta tags   |
+| Browser chrome color                                   | `src/Layout.astro` → the two `theme-color` meta tags   |
 | `robots.txt` (contains the sitemap URL)                | `public/robots.txt`                                    |
 | CV / résumé PDF                                        | `public/` — then point the `CV` entry in `links` at it |
 
@@ -74,7 +81,7 @@ All in `src/lib/consts.ts`:
 
 | Export            | Feeds                                                     | Notes                                                              |
 | ----------------- | --------------------------------------------------------- | ------------------------------------------------------------------ |
-| `availability`    | Hero, every post footer, Contact                          | Status, what you're open to, where                                 |
+| `availability`    | Contact, and the card that closes every post              | Status, what you're open to, where. Once per page, at the close    |
 | `identity`        | The "Who wrote this" card on every article                | Name, role, one plain-language paragraph                           |
 | `beats`           | Entry taxonomy, `/beat/*` pages, the `/writing` masthead  | See [Beats](#beats)                                                |
 | `forms`           | `post` / `project` labels on rows, in the rail and in RSS | See [Content](#content-posts-and-projects)                         |
@@ -86,7 +93,7 @@ All in `src/lib/consts.ts`:
 
 Prose that isn't in `consts.ts` is written directly in its component — the hero paragraphs in `src/components/Masthead.astro`, the biography in `src/pages/about.astro`. Both are marked with comments.
 
-### 4. Colour and type
+### 4. Color and type
 
 `src/styles/tokens.css`. Two palettes and three fonts, all near the top of the file:
 
@@ -108,7 +115,6 @@ Then update the fallback `ogImageAlt` string in `src/Layout.astro` to describe w
 
 ### 6. Housekeeping
 
-- Replace the Netlify badge at the top of this README, or delete it.
 - Delete `src/content/writing/*` and write your own.
 
 ---
@@ -134,7 +140,7 @@ Two rules worth keeping if you fork this:
 
 `.ink` re-points the live tokens (`--bg-canvas`, `--text-primary`, `--accent`, …) at the evidence palette. Because custom properties inherit, every Tailwind utility you've already written — `text-secondary`, `border-rule`, `text-accent` — keeps working inside it and resolves against the panel instead of the page. No `dark:` variants, no second stylesheet.
 
-- `.ground` — the reverse: re-points back to the page palette. Needed when a page-coloured element is nested inside an `.ink` subtree.
+- `.ground` — the reverse: re-points back to the page palette. Needed when a page-colored element is nested inside an `.ink` subtree.
 - `.evidence` — `.ink` plus the chrome (border, radius, lift, top sheen) and the mono voice.
 
 ### Type scale
@@ -175,11 +181,11 @@ Headings read `--display-weight` / `--display-scale` / `--display-track` rather 
 
 `src/pages/index.astro` is just an ordered list of components. Reorder, delete, or add freely — **the order is the argument**. The current order deliberately leads with the human material and puts the technical inventory after it.
 
-| #   | Component           | Data source             | What it does                                                                                              |
-| --- | ------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------- |
-| 1   | `Masthead.astro`    | inline + `availability` | The claim, the availability line, two paragraphs, an "At a glance" evidence panel run around by the prose |
-| 2   | `WritingList.astro` | `writing` collection    | Latest N entries (`SITE.NUM_ENTRIES_ON_HOMEPAGE`), newest first                                           |
-| 3   | `Contact.astro`     | `availability`          | Props for `id`, `eyebrow`, `heading`, `body` so it can be reused with different copy (it is, on `/about`) |
+| #   | Component           | Data source          | What it does                                                                                              |
+| --- | ------------------- | -------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1   | `Masthead.astro`    | inline               | The claim, two paragraphs, an "At a glance" evidence panel run around by the prose                        |
+| 2   | `WritingList.astro` | `writing` collection | Latest N entries (`SITE.NUM_ENTRIES_ON_HOMEPAGE`), newest first                                           |
+| 3   | `Contact.astro`     | `availability`       | Props for `id`, `eyebrow`, `heading`, `body` so it can be reused with different copy (it is, on `/about`) |
 
 Three blocks, deliberately. `Milestones`, `Practice` and `Testimonials` all used to sit here and now live on `/about`, which is where somebody goes once this page has already convinced them. The comment at the top of `index.astro` has the word counts that made the case.
 
@@ -297,7 +303,7 @@ export const beats = {
 
 - `plain` is layer one — the beat explained with no jargon.
 - `summary` is layer two — the same thing with the vocabulary.
-- `tone` maps to a colour through `beatTone` in the same file: `warm` → `text-accent`, `cool` → `text-accent-alt`, `ink` → `text-primary`. Both accent tokens are already restated per background, so a beat marker stays legible on the page and on the evidence plane, in both themes.
+- `tone` maps to a color through `beatTone` in the same file: `warm` → `text-accent`, `cool` → `text-accent-alt`, `ink` → `text-primary`. Both accent tokens are already restated per background, so a beat marker stays legible on the page and on the evidence plane, in both themes.
 
 **To rename or add a beat:** add the key to `BEATS`, add the matching entry to `beats`, and update the `beat:` field in any existing content. Everything else — `/beat/*` pages, the masthead, the archive markers, RSS categories, the link-preview cards — reads from those two places. The keys are URL segments (`/beat/frontend`), so they stay lowercase and unhyphenated even when the `label` isn't.
 
@@ -371,11 +377,11 @@ Attributes you can put on anything:
 | `data-rule`    | Draws a horizontal rule from the left                                                 |
 | `data-enter`   | On-load entrance for above-the-fold content. Stagger with `style="--enter:0"`, `1`, … |
 
-The whole motion layer sits behind `prefers-reduced-motion: no-preference`, with a tiered `reduce` block that strips movement while keeping colour and focus transitions. Content is visible by default — a failure mode can never hide it.
+The whole motion layer sits behind `prefers-reduced-motion: no-preference`, with a tiered `reduce` block that strips movement while keeping color and focus transitions. Content is visible by default — a failure mode can never hide it.
 
 Perpetual effects read a single `--flow` clock through `sin()` at their own amplitude and phase, so everything moving is in step rather than drifting. With no clock running, `sin(0)` is 0 and each effect lands on the midpoint it oscillates around, which is the value it would have held anyway — so reduced motion, an unsupported browser and the first paint before the clock starts all render the same correct page.
 
-Also in the box: text hierarchy tuned to clear WCAG AA at 13px (the comment in `tokens.css` explains why the greys are compressed), visible focus rings, `prefers-reduced-motion` honoured, and semantic markup throughout.
+Also in the box: text hierarchy tuned to clear WCAG AA at 13px (the comment in `tokens.css` explains why the grays are compressed), visible focus rings, `prefers-reduced-motion` honored, and semantic markup throughout.
 
 **Theme:** a `.dark` class on `<html>`, set before first paint by a blocking inline script in `Layout.astro` and toggled by `src/components/base/ThemeIcon.astro`. Stored under the `theme` key in `localStorage`, defaulting to the OS preference.
 
@@ -439,4 +445,14 @@ Astro 4 · Tailwind CSS 3 · TypeScript · MDX · Shiki · `@astrojs/sitemap` ·
 
 ---
 
+## License
+
+[MIT](LICENSE) — the code. Use it, fork it, ship your own version of it.
+
+The content is not code: the posts in `src/content/writing/`, the biography and the quotes in `src/lib/consts.ts` and `src/pages/about.astro`, the CV in `public/`, and the brush calligraphy in `src/assets/` are mine and stay mine. Replacing them is step one of [Make it yours](#make-it-yours) anyway.
+
 If you fork it or borrow an idea, a star is appreciated 😀
+
+---
+
+Built by **Ariel Gianatiempo** — [arielgianatiempo.com](https://arielgianatiempo.com) · [LinkedIn](https://www.linkedin.com/in/gianatiempo/) · [GitHub](https://github.com/gianatiempo)

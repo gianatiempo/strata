@@ -14,7 +14,7 @@ stack:
   - Canvas 2D
 categories: ['website']
 tags: ['astro', 'css', 'design', 'writing']
-repoURL: https://github.com/gianatiempo/portfolio2024
+repoURL: https://github.com/gianatiempo/strata
 ---
 
 Two years ago I built this site to learn Tailwind and Astro. That was the whole brief. I found a Tailus template, took it apart, put it back together in a way I liked, borrowed the blog and projects setup from Astro Micro, uninstalled React halfway through because I'd stopped needing it, and shipped. It worked fine. I was pretty happy with it.
