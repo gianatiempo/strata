@@ -4,7 +4,6 @@ import Layout from '../Layout.astro'
 import Contact from '@components/Contact.astro'
 import Testimonials from '@components/Testimonials.astro'
 import Milestones from '@components/Milestones.astro'
-import Availability from '@components/Availability.astro'
 import Evidence from '@components/Evidence.astro'
 import SectionHead from '@components/SectionHead.astro'
 import enso from '../assets/enso.png'
@@ -36,8 +35,6 @@ import { certifications, facts, practice, SITE } from '@lib/consts'
 			<h1 class="max-w-title text-display leading-[0.93] tracking-[-0.03em]" data-enter style="--enter:1">
 				I'm choosing to be a beginner&nbsp;<em class="italic text-accent">again</em>.
 			</h1>
-
-			<Availability class="mt-9" />
 
 			<!-- The account at measure, the receipts raised into it. A run-around
 			     rather than a second grid column — the prose runs down the panel's
@@ -223,13 +220,19 @@ import { certifications, facts, practice, SITE } from '@lib/consts'
 			</Evidence>
 		</section>
 
-		<Testimonials />
-
+		<!-- What I'm after before Colleagues, which is the opposite of the order
+		     a sales page would use. The endorsements are the one section here
+		     that asserts rather than shows, so they do not get to be the last
+		     thing a reader passes on the way to the contact block. They sit
+		     underneath it instead: there for anybody who wants them, in nobody's
+		     way. -->
 		<Contact
 			id="contact"
 			eyebrow="What I'm after"
 			heading="Fullstack work with AI in it."
 			body="Remote, in Europe, and fintech if I get to pick (been there, loved that). Ideally somewhere I can grow into Fullstack and AI. And I'm happy to talk to anyone else making the same move."
 		/>
+
+		<Testimonials />
 	</main>
 </Layout>
