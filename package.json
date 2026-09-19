@@ -1,9 +1,19 @@
 {
-	"name": "gianatiempo-portfolio-v2",
-	"description": "Ariel Gianatiempo Portfolio, Second Attempt!",
-	"version": "0.0.2",
+	"name": "strata",
+	"description": "Strata — an Astro + Tailwind portfolio and writing template for a developer who writes.",
+	"version": "1.0.0",
 	"private": true,
+	"license": "MIT",
+	"author": "Ariel Gianatiempo (https://arielgianatiempo.com)",
+	"homepage": "https://arielgianatiempo.com",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/gianatiempo/strata.git"
+	},
 	"type": "module",
+	"engines": {
+		"node": "^18.17.1 || ^20.3.0 || >=21.0.0"
+	},
 	"scripts": {
 		"dev": "astro dev",
 		"start": "astro dev",
