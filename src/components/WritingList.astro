@@ -1,0 +1,89 @@
+---
+import FormattedDate from '@components/blog/FormattedDate.astro'
+import { beats, beatTone, forms } from '@lib/consts'
+
+/* One row, three forms.
+ *
+ * There used to be two of these — a post row and a project row — on the
+ * grounds that a project carries a status and a stack where a post carries
+ * tags. That difference is two lines of markup, and paying for it with a
+ * second component bought a second set of hover states, a second set of
+ * breakpoints and a second thing to remember to change. Both are entries in
+ * one archive; both are set as one row.
+ *
+ * `feature` gives the newest entry the size it deserves without giving it a
+ * different container. The archive stays one rule-divided column and emphasis
+ * is carried by type alone, which is the version that still reads as one
+ * archive when there are forty of them.
+ */
+
+interface Props {
+	list: any[]
+	feature?: boolean
+	/* Off only where a heading already says what the whole list is — the
+	   grouped archive on /writing. Everywhere a list mixes forms (the home
+	   page, a beat, a tag) it has to stay on, because "Project" is the one
+	   piece of metadata a reader is scanning for and a status line like
+	   "Shipping" only says it to somebody who already knew. */
+	showForm?: boolean
+	class?: string
+}
+
+const { list, feature = false, showForm = true, class: className } = Astro.props
+---
+
+{
+	list.length === 0 ? (
+		<p class="text-secondary">Nothing here yet.</p>
+	) : (
+		<ol class:list={['rows', className]}>
+			{list.map((entry: any, i: number) => {
+				const form = entry.data.form as keyof typeof forms
+				const large = feature && i === 0
+				const beat = beats[entry.data.beat as keyof typeof beats]
+
+				/* What kind of thing this is, and — for a project — what state it is
+				   in. A post is the default and says nothing: under a "Posts"
+				   heading, or in a list that is mostly posts, a row announcing
+				   itself as a post is noise. A project is not the default, so it
+				   says so. */
+				const formLabel = showForm && form !== 'post' ? forms[form].label : null
+				const status = form === 'project' ? entry.data.status : null
+
+				return (
+					<li data-rise>
+						<a href={`/writing/${entry.slug}`} class:list={['row-link group grid gap-x-10 gap-y-3 md:grid-cols-[10rem_minmax(0,1fr)]', large ? 'py-11 sm:py-14' : 'py-9']}>
+							<div class="grid content-start gap-2">
+								<FormattedDate date={entry.data.date} class="time whitespace-nowrap" />
+								{beat && <span class:list={['label beat', beatTone[beat.tone]]}>{beat.label}</span>}
+								{formLabel && <span class="label text-primary">{formLabel}</span>}
+								{status && <span class="label text-quaternary">{status}</span>}
+								{large && <span class="label text-quaternary">Latest</span>}
+							</div>
+
+							<div>
+								<h3 class:list={['mb-3 flex items-baseline gap-3 transition-colors duration-300 group-hover:text-accent', large ? 'text-h2' : 'text-row']}>
+									{entry.data.title}
+									<span class="translate-x-[-0.4rem] text-h3 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">→</span>
+								</h3>
+
+								{entry.data.description && <p class:list={['max-w-[62ch] text-secondary', large && 'text-body-lg']}>{entry.data.description}</p>}
+
+								{/* A project lists its stack where a post lists its tags.
+								    Same treatment, because they answer the same question:
+								    what is this about, in one glance, without opening it. */}
+								{form === 'project' && entry.data.stack?.length > 0 && (
+									<ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+										{entry.data.stack.map((item: string) => (
+											<li class="label normal-case tracking-[0.03em] text-quaternary">{item}</li>
+										))}
+									</ul>
+								)}
+							</div>
+						</a>
+					</li>
+				)
+			})}
+		</ol>
+	)
+}

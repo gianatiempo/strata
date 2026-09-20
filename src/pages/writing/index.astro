@@ -1,0 +1,121 @@
+---
+import Layout from '../../Layout.astro'
+import WritingList from '@components/WritingList.astro'
+import { beats, beatTone, forms, type Beat, type Form } from '@lib/consts'
+import { getCollection } from 'astro:content'
+
+/* The archive, and the downstream end of the site.
+ *
+ * It replaces two pages — /post and /project — that listed the same kind of
+ * thing under two headings. What went away is the *route* split, not the
+ * distinction: one collection, one index, one row component, one nav item.
+ *
+ * The page still groups by form, though, and the first version of it did not.
+ * A single "Everything, newest first" list is right for a feed and wrong for
+ * an archive: somebody arriving here to see what has been built has no way to
+ * find the builds among the posts, and the only marker separating them was a
+ * status line that a reader has to already understand to read. Grouping costs
+ * nothing structurally — same collection, same component, one `filter` — and
+ * it is the difference between a list you scan and a list you can use.
+ *
+ * Only non-empty groups render. A heading over "Nothing here yet" is an
+ * apology, and there is no reason to publish one.
+ */
+
+const entries = (await getCollection('writing')).filter((entry) => !entry.data.draft).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+
+const byBeat = (Object.keys(beats) as Beat[]).map((key) => ({
+	key,
+	...beats[key],
+	count: entries.filter((entry) => entry.data.beat === key).length
+}))
+
+/* One group per form, in schema order so posts lead — they are the bulk of it
+   and the reason anybody subscribes. Newest first inside each group, which is
+   the order the entries already arrive in. */
+const groups = (Object.keys(forms) as Form[]).map((key) => ({ key, ...forms[key], entries: entries.filter((entry) => entry.data.form === key) })).filter((group) => group.entries.length > 0)
+
+/* Counted rather than asserted, so it stays true without anybody remembering
+   to edit it. Plural by hand because "Notes"/"Posts"/"Projects" all take a
+   plain -s and inventing a pluralisation helper for three known words would be
+   more code than the words. */
+const count = (n: number, label: string) => `${n} ${n === 1 ? label.toLowerCase() : label.toLowerCase() + 's'}`
+
+const firstYear = entries.length ? entries[entries.length - 1].data.date.getFullYear() : new Date().getFullYear()
+---
+
+<Layout
+	title="Writing"
+	description="I did eight years as web developer, mostly Java 6 and backend work, then... jQuery and AngularJS opened the door for eleven in the browser. Now, catching up with Python and AI, notes rather than tutorials — usually written while I'm still figuring the thing out. Three topics; here's what each one covers."
+>
+	<main class="overflow-clip">
+		<section class="shell shell-river pb-16 pt-32 sm:pt-40">
+			<p class="label tick mb-7 text-accent" data-enter style="--enter:0">Writing</p>
+
+			<h1 class="max-w-title text-display leading-[0.93] tracking-[-0.03em]" data-enter style="--enter:1">
+				Both ends of the <em class="italic text-accent">stack</em>... Full<em class="italic text-accent">stack</em>?
+			</h1>
+
+			<p class="measure mt-10 text-body-lg text-secondary" data-enter style="--enter:2">
+				I did eight years as web developer, mostly Java 6 and backend work, then... jQuery and AngularJS opened the door for eleven in the browser. Now, catching up with Python and AI, notes rather
+				than tutorials — usually written while I'm still figuring the thing out. Three topics; here's what each one covers.
+			</p>
+		</section>
+
+		<!-- What the publication covers, said plainly, the way any magazine states
+		     its sections. It is a table of contents, not a justification. -->
+		<section class="shell shell-river pb-section-tight">
+			<dl class="rows grid grid-cols-[minmax(0,1fr)] md:grid-cols-3 md:divide-x md:divide-rule md:[&>*+*]:border-t-0" data-rise>
+				{
+					byBeat.map((beat) => (
+						<div class="grid content-start gap-3 py-7 md:px-8 md:first:pl-0 md:last:pr-0">
+							<div class="flex items-baseline justify-between gap-4">
+								<dt>
+									<a href={`/beat/${beat.key}`} class:list={['label beat link-sweep', beatTone[beat.tone]]}>
+										{beat.label}
+									</a>
+								</dt>
+								<span class="time text-quaternary">{beat.count === 0 ? '—' : beat.count}</span>
+							</div>
+							{/* Layer one then layer two, in the space one summary used to
+							    occupy. A reader who bounces off "retrieval, evals" in the
+							    second line has already been told what the beat is in the
+							    first. */}
+							<dd>
+								<p class="claim claim-sm">{beat.plain}</p>
+								<p class="mt-3 text-secondary">{beat.summary}</p>
+							</dd>
+						</div>
+					))
+				}
+			</dl>
+		</section>
+
+		{
+			groups.map((group, i) => (
+				<section class:list={['shell shell-river', i === groups.length - 1 ? 'pb-section-loose' : 'pb-section-tight']} id={group.key}>
+					<header class="mb-8 border-b border-rule-strong pb-4" data-rise>
+						<div class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
+							<h2 class="text-h2">{group.label}s</h2>
+							{/* The year only belongs on the first group. Repeating "since
+							    2024" under every heading states the same fact three times
+							    and makes two of them look like different facts. */}
+							<p class="label text-quaternary">
+								{count(group.entries.length, group.label)}
+								{i === 0 && (
+									<>
+										{' · since '}
+										<span class="time">{firstYear}</span>
+									</>
+								)}
+							</p>
+						</div>
+						<p class="measure mt-3 text-secondary">{group.plain}</p>
+					</header>
+
+					<WritingList list={group.entries} showForm={false} />
+				</section>
+			))
+		}
+	</main>
+</Layout>

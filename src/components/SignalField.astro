@@ -1,0 +1,326 @@
+---
+/* A flow field: a few hundred points carried along an invisible current,
+ * each leaving a short trail as it goes — the current itself is 2D simplex
+ * noise, sampled along a slowly drifting window so the field keeps evolving
+ * rather than looping. No physics engine, no dependency: the noise
+ * implementation below is the classic public-domain algorithm (Gustavson /
+ * Ashima Arts lineage), ~40 lines, seeded fresh per page load.
+ *
+ * Lives on a <canvas> rather than DOM nodes because a few hundred elements
+ * each getting a transform every frame is real layout/paint pressure; one
+ * canvas redrawing itself is not. `aria-hidden` and `pointer-events: none`
+ * for the same reason as the spine — this is chrome, not content.
+ *
+ * Astro's view transitions swap the DOM on navigation without a full reload,
+ * so this canvas is a *new* element after every nav — no `transition:persist`
+ * here, unlike Spine, because a canvas mid-animation has JS state (particles,
+ * a running rAF loop) that persisting the node alone would not carry over
+ * correctly. Instead the script below listens for `astro:page-load` to
+ * (re)start against whatever canvas is currently in the document, and
+ * `astro:before-swap` to tear the previous run down — otherwise the old rAF
+ * loop keeps drawing into a detached canvas forever, a real leak on a site
+ * where every nav is a soft swap rather than a fresh page.
+ */
+---
+
+<canvas class="signal-field" aria-hidden="true"></canvas>
+
+<script>
+	// ---- 2D simplex noise (public domain, Gustavson/Ashima Arts lineage) ----
+	function createNoise2D() {
+		const p = new Uint8Array(256)
+		for (let i = 0; i < 256; i++) p[i] = i
+		for (let i = 255; i > 0; i--) {
+			const r = (Math.random() * (i + 1)) | 0
+			;[p[i], p[r]] = [p[r], p[i]]
+		}
+		const perm = new Uint8Array(512)
+		for (let i = 0; i < 512; i++) perm[i] = p[i & 255]
+
+		const grad3 = [
+			[1, 1],
+			[-1, 1],
+			[1, -1],
+			[-1, -1],
+			[1, 0],
+			[-1, 0],
+			[1, 0],
+			[-1, 0],
+			[0, 1],
+			[0, -1],
+			[0, 1],
+			[0, -1]
+		]
+		const dot = (g: number[], x: number, y: number) => g[0] * x + g[1] * y
+
+		const F2 = 0.5 * (Math.sqrt(3) - 1)
+		const G2 = (3 - Math.sqrt(3)) / 6
+
+		return function noise2D(xin: number, yin: number) {
+			const s = (xin + yin) * F2
+			const i = Math.floor(xin + s)
+			const j = Math.floor(yin + s)
+			const t = (i + j) * G2
+			const X0 = i - t
+			const Y0 = j - t
+			const x0 = xin - X0
+			const y0 = yin - Y0
+
+			const i1 = x0 > y0 ? 1 : 0
+			const j1 = x0 > y0 ? 0 : 1
+
+			const x1 = x0 - i1 + G2
+			const y1 = y0 - j1 + G2
+			const x2 = x0 - 1 + 2 * G2
+			const y2 = y0 - 1 + 2 * G2
+
+			const ii = i & 255
+			const jj = j & 255
+			const gi0 = perm[ii + perm[jj]] % 12
+			const gi1 = perm[ii + i1 + perm[jj + j1]] % 12
+			const gi2 = perm[ii + 1 + perm[jj + 1]] % 12
+
+			let n0 = 0,
+				n1 = 0,
+				n2 = 0
+
+			let t0 = 0.5 - x0 * x0 - y0 * y0
+			if (t0 >= 0) {
+				t0 *= t0
+				n0 = t0 * t0 * dot(grad3[gi0], x0, y0)
+			}
+			let t1 = 0.5 - x1 * x1 - y1 * y1
+			if (t1 >= 0) {
+				t1 *= t1
+				n1 = t1 * t1 * dot(grad3[gi1], x1, y1)
+			}
+			let t2 = 0.5 - x2 * x2 - y2 * y2
+			if (t2 >= 0) {
+				t2 *= t2
+				n2 = t2 * t2 * dot(grad3[gi2], x2, y2)
+			}
+
+			return 70 * (n0 + n1 + n2)
+		}
+	}
+
+	// ---- Lifecycle: one live run at a time, torn down on every nav ----
+	let stop: (() => void) | null = null
+
+	function init() {
+		const canvas = document.querySelector<HTMLCanvasElement>('.signal-field')
+		if (!canvas) return
+		const ctx = canvas.getContext('2d')
+		if (!ctx) return
+
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+		const noise2D = createNoise2D()
+
+		// Mutable, not const: the theme toggle (ThemeIcon.astro) flips `.dark`
+		// on <html> without a navigation, so `astro:page-load` never refires to
+		// pick up new values. A MutationObserver below re-reads these in place.
+		let colorA = ''
+		let colorB = ''
+
+		function readThemeColors() {
+			const style = getComputedStyle(document.documentElement)
+			colorA = style.getPropertyValue('--accent').trim() || '#c4441f'
+			colorB = style.getPropertyValue('--accent-alt').trim() || '#2f7d8f'
+		}
+		readThemeColors()
+
+		// Tunables. Slow and sparse on purpose — a flow field reads as alive
+		// from the fact that it never repeats, not from speed or density.
+		const SCALE = 0.0028 // spatial frequency of the current
+		const DRIFT_SPEED = 0.00006 // how fast the sampling window itself moves
+		const PARTICLE_SPEED = 0.55 // px per frame along the current
+		const FADE = 0.045 // trail persistence: lower = longer trails
+		const MAX_AGE = 420 // frames before a particle respawns
+		const HARD_RESET_EVERY = 300 // frames (~5s) — see frame()'s comment
+
+		let width = 0,
+			height = 0,
+			dpr = 1
+		let particles: { x: number; y: number; px: number; py: number; age: number; alt: boolean }[] = []
+
+		function particleCount() {
+			// One particle per ~6000px², clamped so a huge monitor and a phone
+			// both get a reasonable, non-janky count.
+			return Math.round(Math.min(420, Math.max(140, (width * height) / 6000)))
+		}
+
+		function spawn(p: { x: number; y: number; px: number; py: number; age: number; alt: boolean }) {
+			p.x = p.px = Math.random() * width
+			p.y = p.py = Math.random() * height
+			p.age = Math.random() * MAX_AGE
+			p.alt = Math.random() < 0.16
+		}
+
+		function resize() {
+			dpr = Math.min(window.devicePixelRatio || 1, 2)
+			width = window.innerWidth
+			height = window.innerHeight
+			canvas!.width = width * dpr
+			canvas!.height = height * dpr
+			canvas!.style.width = width + 'px'
+			canvas!.style.height = height + 'px'
+			ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
+			ctx!.clearRect(0, 0, width, height)
+
+			const target = particleCount()
+			if (particles.length > target) {
+				particles.length = target
+			} else {
+				while (particles.length < target) {
+					const p = { x: 0, y: 0, px: 0, py: 0, age: 0, alt: false }
+					spawn(p)
+					particles.push(p)
+				}
+			}
+		}
+
+		function drawStatic() {
+			// Reduced motion: one representative frame of the field at rest,
+			// not a live sample — nothing here should ever need to redraw.
+			ctx!.clearRect(0, 0, width, height)
+			ctx!.globalAlpha = 0.5
+			for (const p of particles) {
+				const angle = noise2D(p.x * SCALE, p.y * SCALE) * Math.PI * 2
+				ctx!.strokeStyle = p.alt ? colorB : colorA
+				ctx!.lineWidth = 1
+				ctx!.beginPath()
+				ctx!.moveTo(p.x, p.y)
+				ctx!.lineTo(p.x + Math.cos(angle) * 5, p.y + Math.sin(angle) * 5)
+				ctx!.stroke()
+			}
+			ctx!.globalAlpha = 1
+		}
+
+		let rafId = 0
+		let frameCount = 0
+		let driftAngle = Math.random() * Math.PI * 2
+
+		function frame() {
+			rafId = requestAnimationFrame(frame)
+			frameCount++
+
+			// Every ~5s, wipe the canvas outright rather than trust the fade to
+			// have done it. Two independent reasons this is the safety net rather
+			// than the mechanism:
+			//
+			// 1. `destination-out` only erodes alpha — correct in isolation, but
+			//    wherever the flow field happens to route many particles across
+			//    the same pixels for long enough (a convergent pocket in the
+			//    noise field, which forms and holds for a while before --flow's
+			//    slow drift moves on), repeated strokes there can add alpha
+			//    faster than the fade removes it, and the spot ratchets toward
+			//    opaque — the original bug report, visible in dark mode because
+			//    any stray tint reads clearly against near-black and invisible
+			//    in light mode purely because pale-on-pale doesn't register.
+			// 2. Fading toward the page's own background colour instead (the
+			//    first fix attempted here) turned out to be numerically unsound
+			//    on its own: repeatedly compositing the *same* colour onto
+			//    itself at very low alpha, hundreds of times, measurably drifts
+			//    off that colour in Chromium — confirmed in isolation, nothing
+			//    to do with oklch specifically. Not something to build the fade
+			//    on top of.
+			//
+			// A hard reset sidesteps both: trails already fade within ~1-2s at
+			// FADE below, so a full clear every 5s is indistinguishable from
+			// ordinary fading in the overwhelmingly common case, and bounds the
+			// pathological one to at most 5s of visible drift.
+			if (frameCount % HARD_RESET_EVERY === 0) {
+				ctx!.clearRect(0, 0, width, height)
+			}
+
+			// Trail fade via destination-out: erodes existing alpha only, never
+			// touches colour, so it can't drift the way a colour-blend fade did.
+			ctx!.globalCompositeOperation = 'destination-out'
+			ctx!.fillStyle = `rgba(0, 0, 0, ${FADE})`
+			ctx!.fillRect(0, 0, width, height)
+			ctx!.globalCompositeOperation = 'source-over'
+
+			driftAngle += DRIFT_SPEED
+			const driftX = Math.cos(driftAngle) * 60
+			const driftY = Math.sin(driftAngle) * 60
+
+			for (const p of particles) {
+				const angle = noise2D((p.x + driftX) * SCALE, (p.y + driftY) * SCALE) * Math.PI * 2
+				p.px = p.x
+				p.py = p.y
+				p.x += Math.cos(angle) * PARTICLE_SPEED
+				p.y += Math.sin(angle) * PARTICLE_SPEED
+				p.age++
+
+				const offscreen = p.x < -20 || p.x > width + 20 || p.y < -20 || p.y > height + 20
+				if (offscreen || p.age > MAX_AGE) {
+					spawn(p)
+					continue
+				}
+
+				ctx!.globalAlpha = p.alt ? 0.3 : 0.4
+				ctx!.strokeStyle = p.alt ? colorB : colorA
+				ctx!.lineWidth = 1.1
+				ctx!.beginPath()
+				ctx!.moveTo(p.px, p.py)
+				ctx!.lineTo(p.x, p.y)
+				ctx!.stroke()
+			}
+			ctx!.globalAlpha = 1
+		}
+
+		resize()
+
+		let resizeTimer = 0
+		const onResize = () => {
+			window.clearTimeout(resizeTimer)
+			resizeTimer = window.setTimeout(resize, 150)
+		}
+		window.addEventListener('resize', onResize)
+
+		const onVisibility = () => {
+			if (reduceMotion) return
+			if (document.hidden) {
+				cancelAnimationFrame(rafId)
+			} else {
+				rafId = requestAnimationFrame(frame)
+			}
+		}
+		document.addEventListener('visibilitychange', onVisibility)
+
+		// ThemeIcon.astro toggles `.dark` on <html> directly, with no event and
+		// no navigation — the one path that doesn't already run through
+		// `astro:page-load`. Re-read the particle colours and clear outright so
+		// a mid-visit toggle doesn't leave a few frames of the previous theme's
+		// colours fading out on top of the new one — the canvas itself needs no
+		// repaint, since it's transparent and the real page background under it
+		// already switched with the class.
+		const onThemeChange = () => {
+			readThemeColors()
+			ctx!.clearRect(0, 0, width, height)
+			if (reduceMotion) drawStatic()
+		}
+		const themeObserver = new MutationObserver(onThemeChange)
+		themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+
+		if (reduceMotion) {
+			drawStatic()
+		} else {
+			rafId = requestAnimationFrame(frame)
+		}
+
+		stop = () => {
+			cancelAnimationFrame(rafId)
+			window.removeEventListener('resize', onResize)
+			window.clearTimeout(resizeTimer)
+			document.removeEventListener('visibilitychange', onVisibility)
+			themeObserver.disconnect()
+		}
+	}
+
+	document.addEventListener('astro:page-load', init)
+	document.addEventListener('astro:before-swap', () => {
+		stop?.()
+		stop = null
+	})
+</script>

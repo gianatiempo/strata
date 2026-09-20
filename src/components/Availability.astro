@@ -1,0 +1,59 @@
+---
+import { availability } from '@lib/consts'
+
+/* The first filter anyone applies — a recruiter, a founder, an ex-colleague
+ * with a lead — and in v2 it was the last thing on the page, buried in the
+ * closing paragraph of Contact. It now appears once per page, from one source
+ * in consts: in Contact on the home page and /about, and in the identity card
+ * that closes every post. It used to lead both heroes as well, which meant the
+ * site said "available" twice before the reader had finished deciding whether
+ * they cared. Saying it once, after something has been read, is the version
+ * that does not sound like it is asking.
+ *
+ * It is also a link, because it was the one line on the site that told somebody
+ * they could hire me and then gave them nothing to do about it. Saying
+ * "Available" and leaving the reader to go hunting for an address is the
+ * cheapest kind of dead end.
+ */
+
+interface Props {
+	class?: string
+	/* Where the line points. Contact renders it inside the contact section
+	   itself, and a link from a section to the section it is already in is a
+	   no-op that still looks clickable — so that one instance passes `false`
+	   and gets the plain paragraph this component used to be. Post pages carry
+	   no Contact section of their own, so IdentityCard sends readers home to
+	   `/#contact` rather than to an anchor that does not exist on the page. */
+	href?: string | false
+}
+
+const { class: className, href = '#contact' } = Astro.props
+
+/* One set of markup, two tags. Writing the branch out twice is how the link
+   copy and the plain copy drift apart, so the tag is the variable and the
+   contents are not. Capitalised because that is how Astro tells a dynamic tag
+   from a literal element. */
+const Tag = href === false ? 'p' : 'a'
+---
+
+<Tag href={href === false ? undefined : href} class:list={['label group flex flex-wrap items-center gap-x-3 gap-y-1.5', className]}>
+	<span class="beat text-accent">{availability.status}</span>
+	<span class="normal-case tracking-[0.01em] text-primary transition-colors duration-300 group-hover:text-accent">{availability.open}</span>
+	<span class="normal-case tracking-[0.01em] text-tertiary">· {availability.where}</span>
+
+	{
+		href !== false && (
+			<Fragment>
+				{/* The text already says what is on offer, so an aria-label would
+				    only overwrite it. This adds the missing half — where the link
+				    goes — without putting a second call to action on screen
+				    beside the arrow. */}
+				<span class="sr-only">Get in touch</span>
+
+				<span aria-hidden="true" class="text-tertiary transition-[transform,color] duration-[420ms] ease-glide group-hover:translate-x-1 group-hover:text-accent">
+					→
+				</span>
+			</Fragment>
+		)
+	}
+</Tag>

@@ -1,0 +1,80 @@
+---
+/* Layer three, at its loudest.
+ *
+ * A figure is the part of a technical claim that a reader with no vocabulary
+ * for the rest of it can still evaluate: "90%" needs no glossary. That is why
+ * the evidence layer is allowed to be dense — the number carries across the
+ * vocabulary barrier even when the sentence around it does not.
+ *
+ * Source order is dt-then-dd, which is what associates the pair for a screen
+ * reader; `order` flips them visually so the number leads. Doing it the other
+ * way round would read correctly and announce backwards.
+ *
+ * ---- Counting ------------------------------------------------------------
+ * A figure resolves as you arrive at it, counting from zero. No JavaScript:
+ * an `@property`-registered integer is scrubbed by a view() timeline and
+ * rendered with `counter()`. See `--count` / `.figure-count` in tokens.css.
+ *
+ * It is opt-in per value, and the rule is the honest one rather than the
+ * clever one — a figure counts only when counting is what the number means:
+ *
+ *   60%    counts. It is a quantity, and watching it climb is the claim.
+ *   11     counts.
+ *   2 wks  counts, and keeps its unit.
+ *   2026   does not. A year is a position, not an amount, and spinning one up
+ *          from zero reads as a slot machine.
+ *   3→6    does not. Counting the left half of a range while the right half
+ *          sits still reads as a glitch rather than as a measurement.
+ *   v8→10  does not. It is not a quantity at all.
+ *
+ * Anything that fails the test renders as plain text, which is also what
+ * every value renders as when the browser has no scroll timeline or the
+ * reader has asked for no motion.
+ */
+
+interface Props {
+	items: { value: string; label: string }[]
+	class?: string
+}
+
+const { items, class: className } = Astro.props
+
+/* Split a value into the integer that can count and whatever trails it. The
+   ceiling is deliberate: four digits is a year in every case this site has,
+   and a year must not count. If a genuine four-digit quantity ever turns up,
+   it wants a different treatment anyway — nobody reads 4,200 climbing. */
+const split = (value: string) => {
+	if (value.includes('→')) return null
+	const match = /^(\d{1,3})(\D.*)?$/.exec(value)
+	return match ? { count: Number(match[1]), rest: match[2] ?? '' } : null
+}
+---
+
+<dl class:list={['flex flex-wrap gap-x-9 gap-y-6', className]}>
+	{
+		items.map((item, i) => {
+			const parts = split(item.value)
+
+			return (
+				<div class="figure" data-resolve style={`--i:${i}`}>
+					<dt class="figure-label order-2 max-w-[16ch]">{item.label}</dt>
+					<dd class="figure-value order-1">
+						{parts ? (
+							<>
+								{/* aria-hidden on the counter and the real value in the
+								    label: a screen reader announcing a number that is
+								    mid-animation would read whatever integer it happened
+								    to catch. */}
+								<span class="figure-count" aria-hidden="true" style={`--count:${parts.count};--i:${i}`} />
+								<span aria-hidden="true">{parts.rest}</span>
+								<span class="sr-only">{item.value}</span>
+							</>
+						) : (
+							item.value
+						)}
+					</dd>
+				</div>
+			)
+		})
+	}
+</dl>

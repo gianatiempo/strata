@@ -1,0 +1,74 @@
+---
+import Evidence from './Evidence.astro'
+
+/* Who I am and what I do, and nothing else.
+ *
+ * This used to be wrapped in the seam — one block of display type rendered
+ * twice, the second copy clipped to the far side of a percentage so the
+ * headline was cut mid-word. It was the best-looking thing on the site and it
+ * is gone, deliberately. A seam is a *boundary*, and the argument this site
+ * makes is that there is no boundary: the front end and the server have been
+ * two ends of one job since the job existed. The vertical line is still here,
+ * but it now runs the length of every page instead of one screen, and it says
+ * the opposite thing — see src/components/Spine.astro.
+ *
+ * The prose is unchanged from the version before it, on purpose. The home page
+ * got shorter by moving the career, the practice inventory and the
+ * endorsements to /about, not by rewriting sentences that were already doing
+ * their job.
+ */
+
+const beats = [
+	{ k: 'Front-End', v: 'Last eleven years' },
+	{ k: 'React', v: 'Eight of those' },
+	{ k: 'Back-End', v: 'First eight years' },
+	{ k: 'Python', v: 'Returning' },
+	{ k: 'AI', v: 'Building with it' }
+]
+---
+
+<section class="shell shell-river pb-section-tight pt-32 sm:pt-40" id="home">
+	<p class="label tick mb-7" data-enter style="--enter:0">Ariel Gianatiempo · Málaga, Spain</p>
+
+	<h1 class="max-w-title text-display leading-[0.93] tracking-[-0.03em]" data-enter style="--enter:1">
+		Nineteen years making complicated software easier to <em class="italic text-accent">use</em>.
+	</h1>
+
+	<!-- Layer two around layer three: the account at measure, the receipts
+	     raised into it. The prose runs down the panel's flank and closes
+	     underneath it across the full width of the section rather than stopping
+	     short of it. See `.runaround` in tokens.css.
+
+	     23rem where /about uses 31rem: this panel's longest row needs 285px and
+	     about's Languages row needs 401px. Only the panel is sized here — the
+	     text takes whatever is left beside it, so the two pages differ by the
+	     one measurement that actually differs.
+
+	     The panel leads in source order because a float only affects what
+	     follows it; the `--enter` index still lands it last in the entrance. -->
+	<div class="runaround mt-11" style="--ra-panel:23rem">
+		<Evidence class="runaround-panel" label="At a glance" bodyClass="px-6 sm:px-7" data-enter style="--enter:4">
+			<dl>
+				{
+					beats.map((beat) => (
+						<div class="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-rule py-4 first:border-t-0">
+							<dt class="label text-accent">{beat.k}</dt>
+							<dd class="label label-value text-primary">{beat.v}</dd>
+						</div>
+					))
+				}
+			</dl>
+		</Evidence>
+
+		<div class="space-y-5 text-body-lg text-secondary">
+			<p data-enter style="--enter:2">
+				Eight years of web development with Java, then eleven on the Front-End. Openbank's homebanking, J.P. Morgan tooling, security products at V3 Cybersecurity. Different industries, but the job
+				underneath was always the same: take something dense and confusing, and get a person to the point where they can actually do something with it.
+			</p>
+			<p data-enter style="--enter:3">
+				I'm choosing to start over, Python rather than Java this time, and going further into <strong class="font-medium">building products with AI inside them</strong>. That's not prompting. There is
+				plenty of prompting going on while I build my first projects with Python, AI and a whole new set of problems to solve for companies and users alike, but the two are not the same job.
+			</p>
+		</div>
+	</div>
+</section>

@@ -1,21 +1,17 @@
 ---
 import BackToPrevious from '@components/blog/BackToPrevious.astro'
-import Container from '@components/base/Container.astro'
 import { SITE } from '@lib/consts'
 import Layout from 'Layout.astro'
 ---
 
-<Layout title="404" description={SITE.DESCRIPTION}>
-	<main class="space-y-16 overflow-clip pb-40 sm:space-y-28 lg:space-y-32">
-		<section class="relative h-screen scroll-mt-24 overflow-hidden" id="404">
-			<Container>
-				<div class="grid place-items-center gap-3 pt-24 sm:pt-40 lg:pt-44">
-					<h4 class="animate text-2xl font-semibold text-black dark:text-white">404: Page not found</h4>
-					<span class="animate">
-						<BackToPrevious href="/">Go to home page</BackToPrevious>
-					</span>
-				</div>
-			</Container>
-		</section>
+<Layout title="Not found" description={SITE.DESCRIPTION}>
+	<main class="shell shell-river overflow-clip pb-section-loose pt-40 sm:pt-48">
+		<p class="time tick mb-4">404</p>
+		<h1 class="max-w-title">This page doesn't exist.</h1>
+		<p class="mt-6 max-w-[52ch] text-body-lg text-secondary">Something probably moved when I rebuilt this. The writing is all still here, and the front page is one click away.</p>
+		<div class="mt-10 flex flex-wrap gap-4">
+			<BackToPrevious href="/">Home</BackToPrevious>
+			<BackToPrevious href="/writing">Writing</BackToPrevious>
+		</div>
 	</main>
 </Layout>

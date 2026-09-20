@@ -58,6 +58,13 @@ export const similarItems = (currentItem: any, allItems: any, slug: string) => {
 	return filterBySlug
 }
 
+/* Words that are acronyms rather than words. Tags are stored lowercase, and
+   sentence-casing turned `ai` into `Ai` everywhere it was displayed — in the
+   tag page's heading and, since titles carry the page name, in the browser tab
+   too. Matched whole-word and case-insensitively, so `building with ai` comes
+   out as `Building with AI` and a word like `said` is untouched. */
+const ACRONYMS = new Set(['ai', 'api', 'aws', 'cli', 'css', 'html', 'rss', 'sql', 'ui', 'ux'])
+
 export const humanize = (content: string) => {
 	return content
 		.replace(/^[\s_]+|[\s_]+$/g, '')
@@ -66,6 +73,7 @@ export const humanize = (content: string) => {
 		.replace(/^[a-z]/, function (m) {
 			return m.toUpperCase()
 		})
+		.replace(/\b[a-z]+\b/gi, (word) => (ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word))
 }
 
 export const readingTime = (content: string) => {
@@ -93,15 +101,9 @@ export const readingTime = (content: string) => {
 		images -= 1
 	}
 
-	const minutes = Math.ceil(((words - imageAdjust) / WPS + imageSecs) / 60)
+	// Never less than a minute, and no zero-padding — "05 mins read" reads like a
+	// stopwatch rather than a reading estimate.
+	const minutes = Math.max(1, Math.ceil(((words - imageAdjust) / WPS + imageSecs) / 60))
 
-	if (minutes < 10) {
-		if (minutes < 2) {
-			return '0' + minutes + ` min read`
-		} else {
-			return '0' + minutes + ` mins read`
-		}
-	} else {
-		return minutes + ` mins read`
-	}
+	return `${minutes} min read`
 }

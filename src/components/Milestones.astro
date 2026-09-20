@@ -1,0 +1,48 @@
+---
+import Evidence from './Evidence.astro'
+import Figures from './Figures.astro'
+import SectionHead from './SectionHead.astro'
+import { timeline } from '@lib/consts'
+
+/* The past. The only part of this site that is finished.
+ *
+ * It lives on /about now rather than on the home page, which is what took the
+ * home page from 1,270 words to under 400 without deleting a sentence.
+ *
+ * The prose sits on the ground in the serif and only the numbers it already
+ * contains are lifted onto the evidence plane beside it. Same content, both
+ * audiences. The third column stays empty for entries whose prose has no
+ * number in it — Globant — which is the check that keeps `figures` honest
+ * rather than a template that has to be filled.
+ */
+---
+
+<section class="scroll-mt-24 py-section" id="milestones">
+	<div class="shell shell-river">
+		<SectionHead eyebrow="Milestones" tick split>
+			<h2 class="measure-wide">How I got here, and what changed because I showed up.</h2>
+			<p slot="note" class="max-w-[34ch] text-secondary">Newest first. Each role with the specific thing that was different afterwards.</p>
+		</SectionHead>
+
+		<ol class="rows">
+			{
+				timeline.map((item) => (
+					<li class="grid grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-6 py-10 lg:grid-cols-[minmax(0,7rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,7rem)_minmax(0,1fr)_minmax(0,17rem)]" data-rise>
+						<time class="time text-accent lg:pt-1.5">{item.date}</time>
+
+						<div>
+							<h3 class="mb-3 text-h3">{item.label}</h3>
+							<p class="measure text-secondary">{item.description}</p>
+						</div>
+
+						{item.figures && (
+							<Evidence bodyClass="px-6 py-6 sm:px-7" class="self-start">
+								<Figures items={item.figures} class="gap-x-8 gap-y-6" />
+							</Evidence>
+						)}
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>

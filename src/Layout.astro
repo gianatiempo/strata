@@ -1,22 +1,43 @@
 ---
-import TwSizeIndicator from '@components/base/TwSizeIndicator.astro'
 import AppFooter from './AppFooter.astro'
 import AppHeader from './AppHeader.astro'
+import SignalField from '@components/SignalField.astro'
+import Spine from '@components/Spine.astro'
 import { SITE } from './lib/consts'
 import { ViewTransitions } from 'astro:transitions'
+import './styles/tokens.css'
 
 export interface Props {
 	title?: string
 	description?: string
 	image?: string
-	url?: string
+	/* Required whenever `image` is overridden. A generated card needs a
+	   generated description — see `cardAlt` in src/lib/og.ts — because a
+	   hand-written sentence about the picture goes stale the first time the
+	   card is redesigned, silently, with nothing to catch it. */
+	imageAlt?: string
 	type?: string
+	publishedDate?: Date
 }
 
-const { title = SITE.TITLE, description = SITE.DESCRIPTION, image = SITE.IMAGE, type = SITE.TYPE } = Astro.props
+const { title = SITE.TITLE, description = SITE.DESCRIPTION, image = SITE.IMAGE, imageAlt, type = SITE.TYPE, publishedDate } = Astro.props
+
+/* The tab always carries the name, but the page's own title leads: tabs and
+   search results both truncate from the right, so the half that identifies
+   *where you are* has to come first. The home page is the one exception —
+   it is already the name, and "Ariel Gianatiempo — Ariel Gianatiempo" is not
+   a title. Only the document title gets the suffix; og:title stays bare
+   because og:site_name already carries the name for anything unfurling a link. */
+const pageTitle = title === SITE.TITLE ? SITE.TITLE : `${title} — ${SITE.TITLE}`
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).href
 const ogImageUrl = new URL(image, Astro.site).href
+/* The default describes public/og.png as it actually is, so regenerating that
+   file means changing this line in the same commit. Pages that render their own
+   card pass `imageAlt` instead, generated from the same inputs as the picture. */
+const ogImageAlt =
+	imageAlt ??
+	'Ariel Gianatiempo, Málaga, Spain. "Nineteen years making complicated software easier to use", set large in a serif on cream beside a blue brush-drawn ensō, above a dark panel reading Front-End, last eleven years; Back-End, first eight years; Python, one day, now day one; AI, getting started.'
 ---
 
 <!doctype html>
@@ -24,38 +45,72 @@ const ogImageUrl = new URL(image, Astro.site).href
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="color-scheme" content="dark light" />
+		<!-- Matches --bg-canvas in both themes, so mobile browser chrome blends
+		     into the page instead of framing it. -->
+		<meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#1c1a19" media="(prefers-color-scheme: dark)" />
 
 		<!-- Canonical URL -->
 		<link rel="canonical" href={canonicalURL} />
 
 		<!-- Primary Meta Tags -->
-		<title>{title}</title>
-		<meta name="title" content={title} />
+		<title>{pageTitle}</title>
+		<meta name="title" content={pageTitle} />
 		<meta name="description" content={description} />
 
-		<!-- Open Graph / Facebook -->
+		<!-- Open Graph / Facebook. Dimensions and alt matter: without the first,
+		     some clients render a small card while they wait on the image; without
+		     the second, the card is unreadable to anyone using a screen reader. -->
+		<meta property="og:site_name" content={SITE.TITLE} />
+		<!-- Matches FormattedDate's `en-US`. Change both together or neither. -->
+		<meta property="og:locale" content="en_US" />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:type" content={type} />
-		<meta property="og:url" content={Astro.url} />
+		<meta property="og:url" content={canonicalURL} />
 		<meta property="og:image" content={ogImageUrl} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content={ogImageAlt} />
+		{publishedDate && <meta property="article:published_time" content={publishedDate.toISOString()} />}
+		{type === 'article' && <meta property="article:author" content={SITE.TITLE} />}
 
-		<!-- Twitter -->
-		<meta property="twitter:title" content={title} />
-		<meta property="twitter:description" content={description} />
-		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={Astro.url} />
-		<meta property="twitter:image" content={ogImageUrl} />
+		<!-- Twitter reads `name`, not `property`. -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:url" content={canonicalURL} />
+		<meta name="twitter:image" content={ogImageUrl} />
+		<meta name="twitter:image:alt" content={ogImageAlt} />
 
 		<ViewTransitions />
+
+		<script is:inline>
+			// Must run before paint, or the wrong theme flashes on first load.
+			;(() => {
+				const stored = localStorage.getItem('theme')
+				const dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
+				document.documentElement.classList.toggle('dark', dark)
+			})()
+		</script>
 	</head>
-	<body class="overflow-x-hidden bg-white dark:bg-zinc-950">
+	<body class="overflow-x-hidden">
+		<SignalField />
 		<AppHeader />
-		<slot />
+
+		<!-- The spine is a sibling of <main> rather than a child of it, and the
+		     two share a positioned wrapper: <main> carries `overflow-clip` on
+		     every page, which would crop a 1px rule sitting in the gutter at the
+		     exact widths where the gutter is tightest. -->
+		<div class="relative">
+			<Spine />
+			<slot />
+		</div>
+
 		<AppFooter />
-		<TwSizeIndicator />
 	</body>
 </html>

@@ -1,0 +1,79 @@
+---
+import Layout from '../../Layout.astro'
+import WritingList from '@components/WritingList.astro'
+import { beats, beatTone, forms, type Beat, type Form } from '@lib/consts'
+import { getCollection } from 'astro:content'
+
+/* One page per beat, generated rather than filtered in the browser.
+ *
+ * A client-side filter looks the same and is worth less: /beat/backend is a
+ * link that can be posted on its own, indexed on its own, and sent to someone
+ * who only wants the Python and model work.
+ *
+ * Every form carries a beat — post, note and project alike — so all three are
+ * listed here: a beat is a subject, not a format.
+ */
+
+export async function getStaticPaths() {
+	const all = (await getCollection('writing')).filter((entry) => !entry.data.draft)
+
+	return (Object.keys(beats) as Beat[]).map((key) => ({
+		params: { beat: key },
+		props: {
+			beat: key,
+			entries: all.filter((entry) => entry.data.beat === key).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+		}
+	}))
+}
+
+const { beat, entries } = Astro.props
+const meta = beats[beat]
+
+/* Said in words rather than as "3 · 1", because this line is read by people who
+   are deciding whether the beat is real. Empty stays empty rather than reading
+   "Nothing here yet" — the list below says exactly that, and a heading that
+   says it too reads as an error message. A beat with nothing in it yet is a
+   promise, and dressing that up would be the one dishonest thing on the page. */
+const tally = (Object.keys(forms) as Form[])
+	.map((key) => {
+		const n = entries.filter((entry: any) => entry.data.form === key).length
+		return n ? `${n} ${n === 1 ? forms[key].label.toLowerCase() : forms[key].label.toLowerCase() + 's'}` : null
+	})
+	.filter(Boolean)
+	.join(' · ')
+---
+
+<Layout title={meta.label} description={meta.summary}>
+	<main class="overflow-clip">
+		<section class="shell shell-river pb-section-tight pt-32 sm:pt-40">
+			<p class:list={['label beat tick mb-7', beatTone[meta.tone]]} data-enter style="--enter:0">{meta.label}</p>
+
+			<h1 class="max-w-title text-display leading-[0.93] tracking-[-0.03em]" data-enter style="--enter:1">{meta.plain}</h1>
+
+			<p class="measure mt-10 text-body-lg text-secondary" data-enter style="--enter:2">{meta.summary}</p>
+		</section>
+
+		<section class="shell shell-river pb-section-loose">
+			<header class="mb-8 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3 border-b border-rule-strong pb-4" data-rise>
+				<h2 class="text-h2">Everything in this beat</h2>
+				{tally && <p class="label text-quaternary">{tally}</p>}
+			</header>
+
+			<WritingList list={entries} />
+
+			<nav class="mt-14 flex flex-wrap gap-x-8 gap-y-3 border-t border-rule pt-8" aria-label="Other beats">
+				<span class="label text-quaternary">Other beats</span>
+				{
+					(Object.keys(beats) as Beat[])
+						.filter((key) => key !== beat)
+						.map((key) => (
+							<a href={`/beat/${key}`} class:list={['label beat link-sweep', beatTone[beats[key].tone]]}>
+								{beats[key].label}
+							</a>
+						))
+				}
+				<a href="/writing" class="label link-sweep text-primary hover:text-accent">All writing</a>
+			</nav>
+		</section>
+	</main>
+</Layout>

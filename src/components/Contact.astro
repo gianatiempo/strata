@@ -1,27 +1,60 @@
 ---
-import Frame from '@components/base/Frame.astro'
-import Container from './base/Container.astro'
-import BaseCard from '@components/base/BaseCard.astro'
+import Availability from './Availability.astro'
+import MailLink from './MailLink.astro'
+import SectionHead from './SectionHead.astro'
+
+/* The close of every page, and the one block on the site whose job is to be
+ * acted on rather than read. Deliberately plain: it says what is on offer and
+ * gives two ways to start, and it does not decorate either of them.
+ *
+ * On /about the endorsements sit below it rather than above, so this is the
+ * last thing in the argument but not literally the last section. See the note
+ * in src/pages/about.astro.
+ */
+
+interface Props {
+	id?: string
+	eyebrow?: string
+	heading?: string
+	body?: string
+}
+
+const {
+	id = 'contact',
+	eyebrow = 'Contact',
+	heading = "Let's talk.",
+	body = "Open to Front-End, Fullstack and AI-adjacent work, and glad to talk to anyone making the same move. If you're hiring, drop me a message... that's the conversation I want."
+} = Astro.props
 ---
 
-<div class="relative scroll-mt-24 text-zinc-600 dark:text-zinc-300" id="contact">
-	<div
-		aria-hidden
-		class="pointer-events-none absolute left-1/2 top-0 z-10 h-[800px] w-[1000px] -translate-x-1/2 -translate-y-1/3 opacity-20 [background-image:radial-gradient(theme(colors.zinc.500),transparent_50%)] dark:opacity-35"
-	>
-	</div>
-	<Container>
-		<div class="relative">
-			<div class="mt-6 space-y-6">
-				<h2 class="text-center text-4xl font-bold text-zinc-800 dark:text-white md:text-5xl">Get to know me</h2>
-				<p class="text-center text-lg text-zinc-600 dark:text-zinc-300">Let's schedule a meeting to discuss your project. I am available for freelance work.</p>
+<section class="scroll-mt-24 py-section" id={id}>
+	<div class="shell shell-river">
+		<SectionHead eyebrow={eyebrow} tick split>
+			<h2 class="max-w-[16ch] text-h1">{heading}</h2>
+			<p slot="note" class="text-secondary">{body}</p>
+		</SectionHead>
 
-				<div class="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-4 md:pb-24">
-					<a href="https://calendly.com/gianatiempo/30min" target="_blank" class="text-zinc-800 dark:text-white md:text-xl">
-						<BaseCard>Say Hi! 👋</BaseCard>
-					</a>
-				</div>
+		<!-- `items-start`, not `items-end`: the availability line is one row tall
+		     and the panel beside it is two, so aligning to the bottom stranded it
+		     under 200px of nothing. -->
+		<div class="grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-start" data-rise>
+			<Availability href={false} />
+
+			<div class="grid gap-px overflow-hidden rounded-xl border border-rule bg-rule">
+				<a
+					href="https://calendly.com/gianatiempo/30min"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="group flex items-center justify-between gap-4 bg-canvas px-6 py-5 transition-colors duration-300 hover:bg-sunken"
+				>
+					<span class="font-display text-h3 text-primary transition-colors duration-300 group-hover:text-accent">Book 30 minutes</span>
+					<span class="text-h3 text-quaternary transition-[transform,color] duration-[420ms] ease-glide group-hover:translate-x-1 group-hover:text-accent">→</span>
+				</a>
+				<MailLink class="group flex items-center justify-between gap-4 bg-canvas px-6 py-5 transition-colors duration-300 hover:bg-sunken">
+					<span class="font-display text-h3 text-primary transition-colors duration-300 group-hover:text-accent">Email me</span>
+					<span class="text-h3 text-quaternary transition-[transform,color] duration-[420ms] ease-glide group-hover:translate-x-1 group-hover:text-accent">→</span>
+				</MailLink>
 			</div>
 		</div>
-	</Container>
-</div>
+	</div>
+</section>

@@ -1,0 +1,53 @@
+---
+import Evidence from './Evidence.astro'
+
+/* Published code, treated as evidence rather than as a link in a sentence.
+ *
+ * The plan for this site is that the Python and AI work goes up on GitHub for
+ * people to check — which only counts if the repository is findable from the
+ * writing about it. A sentence with an anchor in it is not findable; a panel
+ * is. It reads from `repoURL` on the writing schema, so any entry — post, note or
+ * project — points at its own code with one line of frontmatter.
+ *
+ * Deliberately static. Fetching stars and languages from the GitHub API at
+ * build time would add a network dependency and a rate limit to every build,
+ * in exchange for two numbers that say nothing about whether the code is worth
+ * reading.
+ */
+
+interface Props {
+	url: string
+	stack?: string[]
+	class?: string
+}
+
+const { url, stack = [], class: className } = Astro.props
+
+/* "github.com/gianatiempo/thing" reads as an address, which is what makes it
+   legible as a repository rather than as a button. Falls back to the raw URL
+   for anything that is not a URL we can parse. */
+let label = url
+try {
+	const parsed = new URL(url)
+	label = `${parsed.host.replace(/^www\./, '')}${parsed.pathname.replace(/\/$/, '')}`
+} catch {
+	/* keep the raw string */
+}
+---
+
+<Evidence class={className} label="The code" bodyClass="p-6 sm:p-7">
+	<a href={url} target="_blank" rel="noopener noreferrer" class="group flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+		<span class="text-h3 text-primary transition-colors duration-300 group-hover:text-accent">{label}</span>
+		<span class="label text-accent transition-transform duration-[420ms] ease-glide group-hover:translate-x-1">Open ↗</span>
+	</a>
+
+	{
+		stack.length > 0 && (
+			<ul class="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-rule pt-5">
+				{stack.map((item) => (
+					<li class="label normal-case tracking-[0.02em] text-tertiary">{item}</li>
+				))}
+			</ul>
+		)
+	}
+</Evidence>

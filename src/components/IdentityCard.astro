@@ -1,0 +1,33 @@
+---
+import Availability from './Availability.astro'
+import MailLink from './MailLink.astro'
+import { identity } from '@lib/consts'
+
+/* Closes every article and every project write-up.
+ *
+ * Most readers arrive on a post from a link someone shared and never see the
+ * home page, so the article has to answer who wrote this, what they do and
+ * what they are looking for. Deliberately in plain language and on the ground
+ * rather than on the ink plane: the person most likely to act on it — forward
+ * it to a hiring manager, reply to it — is frequently not an engineer, and
+ * this is the one block on the page written for them.
+ */
+---
+
+<aside class="rounded-xl border border-rule bg-sunken p-7 sm:p-9" aria-label="About the author">
+	<p class="label mb-5 text-accent">Who wrote this</p>
+
+	<p class="claim claim-sm">
+		{identity.name} — <span class="text-secondary">{identity.role}.</span>
+	</p>
+
+	<p class="measure mt-5 text-secondary">{identity.plain}</p>
+
+	<Availability href="/#contact" class="mt-7" />
+
+	<div class="mt-7 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-rule pt-6">
+		<a href="/about" class="label link-sweep text-primary hover:text-accent">More about me</a>
+		<MailLink class="label link-sweep text-primary hover:text-accent">Email me</MailLink>
+		<a href="https://github.com/gianatiempo" target="_blank" rel="noopener noreferrer" class="label link-sweep text-primary hover:text-accent">GitHub ↗</a>
+	</div>
+</aside>

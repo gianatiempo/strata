@@ -1,0 +1,38 @@
+---
+import type { HTMLAttributes } from 'astro/types'
+
+/* Layer three's container: a raised plane of cool ink.
+ *
+ * The whole point of Strata is that this is a *panel* and never a page band.
+ * In v2 the same palette ran full-bleed across three of five home sections and
+ * the whole career table, which meant the site's densest, coldest treatment
+ * was wearing its most human material and winning on area besides. At
+ * component scale the same ink reads as what it now means: here are the
+ * receipts.
+ *
+ * `.ink` re-points the live tokens, so every utility inside — text-secondary,
+ * border-rule, text-accent — keeps working and resolves against the panel
+ * rather than against the page. `.evidence` adds the chrome and the mono
+ * voice. See tokens.css.
+ */
+
+interface Props extends HTMLAttributes<'div'> {
+	/* Optional rule-divided header. Worth using whenever the panel's contents
+	   would otherwise need a sentence of introduction outside it. */
+	label?: string
+	bodyClass?: string
+}
+
+/* Rest props are forwarded rather than enumerated: callers need `data-rise`,
+   `data-enter` and `style="--enter:n"` on the panel itself, and a component
+   that swallows them silently drops the animation with no error. */
+const { label, class: className, bodyClass = 'p-6 sm:p-7', ...rest } = Astro.props
+---
+
+<div class:list={['ink evidence', className]} {...rest}>
+	{label && <p class="label border-b border-rule px-6 py-3.5 text-tertiary sm:px-7">{label}</p>}
+
+	<div class={bodyClass}>
+		<slot />
+	</div>
+</div>

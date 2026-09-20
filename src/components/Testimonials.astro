@@ -1,18 +1,48 @@
 ---
-import Container from './base/Container.astro'
-import { testimonialData } from '../lib/consts'
-import TestimonialCard from '@components/cards/TestimonialCard.astro'
+import SectionHead from './SectionHead.astro'
+import { testimonialData } from '@lib/consts'
+
+/* /about only. A reader assessing whether to pass someone on weights a
+ * colleague's sentence far more heavily than another paragraph written by the
+ * candidate — and these are specific rather than generic, which is the only
+ * reason they earn the space. But they are evidence, and evidence belongs on
+ * the record page: two of them on the home page cost three paragraphs at the
+ * exact point a reader should have been clicking into the writing instead.
+ */
+
+interface Props {
+	limit?: number
+	class?: string
+}
+
+const { limit = 3, class: className } = Astro.props
+const featured = testimonialData.slice(0, limit)
 ---
 
-<section class="scroll-mt-24 text-zinc-600 dark:text-zinc-300" id="testimonials">
-	<Container>
-		<div class="pb-8 text-center">
-			<h2 class="text-3xl font-semibold text-zinc-950 dark:text-white md:text-4xl">Colleagues' Opinions</h2>
-			<p class="mt-4 text-zinc-600 dark:text-zinc-400">What's it like working with me?</p>
-		</div>
+<section class:list={['scroll-mt-24 py-section-tight', className]} id="testimonials">
+	<div class="shell shell-river">
+		<SectionHead eyebrow="Colleagues" tick>
+			<h2 class="measure-wide">What I'm like to work with, according to people who had to.</h2>
+		</SectionHead>
 
-		<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-			{testimonialData.map((t) => <TestimonialCard image={t.image} url={t.url} name={t.name} position={t.position} message={t.message} />)}
+		<!-- `.rows` divides siblings with a top rule, which is right while these
+		     are stacked and wrong once they sit side by side — so at lg the
+		     horizontal rules are dropped and the columns divide vertically. -->
+		<div class:list={['rows grid grid-cols-[minmax(0,1fr)] lg:divide-x lg:divide-rule lg:[&>*+*]:border-t-0', featured.length > 2 ? 'lg:grid-cols-3' : 'lg:grid-cols-2']}>
+			{
+				featured.map((t) => (
+					<figure class="flex flex-col py-9 lg:px-8 lg:py-10 lg:first:pl-0 lg:last:pr-0" data-rise>
+						<blockquote class="flex-1 font-display text-h3 leading-snug text-primary">{t.message}</blockquote>
+
+						<figcaption class="mt-7">
+							<a href={t.url} target="_blank" rel="noopener noreferrer" class="label link-sweep text-accent">
+								{t.name}
+							</a>
+							<p class="label mt-1.5 text-tertiary">{t.position}</p>
+						</figcaption>
+					</figure>
+				))
+			}
 		</div>
-	</Container>
+	</div>
 </section>

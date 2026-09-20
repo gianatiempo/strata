@@ -1,0 +1,238 @@
+---
+import { Image } from 'astro:assets'
+import Layout from '../Layout.astro'
+import Contact from '@components/Contact.astro'
+import Testimonials from '@components/Testimonials.astro'
+import Milestones from '@components/Milestones.astro'
+import Evidence from '@components/Evidence.astro'
+import SectionHead from '@components/SectionHead.astro'
+import enso from '../assets/enso.png'
+import aikido from '../assets/aikido.png'
+import { certifications, facts, practice, SITE } from '@lib/consts'
+
+/* The record. Everything that has already happened, in one place.
+ *
+ * It absorbed three sections off the home page — the career timeline, the
+ * practice inventory and the endorsements — and it is the longer page for it.
+ * That is the correct trade. Somebody reaches this page because the first one
+ * already convinced them and now they want the evidence; length is what they
+ * came for. The home page's job was to be short enough that they get here.
+ *
+ * It used to render with the spine frozen — solid end to end, nothing moving,
+ * the record as the one still place on a moving site. That is gone: away from
+ * the moment of arriving here it read as a page where something had failed to
+ * load rather than as one deliberately at rest, and consistent behaviour across
+ * the site is worth more than the metaphor. Every page now carries the same
+ * spine.
+ */
+---
+
+<Layout title="About" description={SITE.DESCRIPTION}>
+	<main class="overflow-clip">
+		<section class="shell shell-river pb-section-tight pt-32 sm:pt-40">
+			<p class="label tick mb-7 text-accent" data-enter style="--enter:0">About</p>
+
+			<h1 class="max-w-title text-display leading-[0.93] tracking-[-0.03em]" data-enter style="--enter:1">
+				I'm choosing to be a beginner&nbsp;<em class="italic text-accent">again</em>.
+			</h1>
+
+			<!-- The account at measure, the receipts raised into it. A run-around
+			     rather than a second grid column — the prose runs down the panel's
+			     flank and then closes underneath it across the full width of the
+			     section. Neither half is capped; see `.runaround` in tokens.css.
+
+			     31rem is set by the Languages row: its term plus value measured
+			     429px in a 422px track and the value dropped underneath its own
+			     label. 31rem opens the track to 438px, and `.label-value` takes the
+			     value itself down to ~308px, so the row carries ~37px of slack
+			     instead of being 7px short. Both halves matter — the width alone
+			     left it one bad font-load from wrapping again.
+
+			     The panel leads in source order because a float only affects what
+			     follows it. That also puts it above the prose on a phone, which is
+			     the better reading order there anyway: where he is and what he is
+			     open to, before the career. -->
+			<div class="runaround mt-10" style="--ra-panel:31rem">
+				<Evidence class="runaround-panel" label="The practical details" bodyClass="px-6 sm:px-7" data-enter style="--enter:2">
+					<dl>
+						{
+							facts.map((fact) => (
+								<div class="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-rule py-4 first:border-t-0">
+									<dt class="label text-accent">{fact.k}</dt>
+									<dd class="label label-value text-primary">{fact.v}</dd>
+								</div>
+							))
+						}
+					</dl>
+				</Evidence>
+
+				<div class="space-y-5 text-body-lg text-secondary">
+					<p data-enter style="--enter:3">
+						I started in 2007 writing Java Back-Ends. School systems, government work, and eventually airline loyalty at Hewlett-Packard. Eight years of that, and then AngularJS made the browser look
+						like the interesting place to be, so I went. I stayed eleven years.
+					</p>
+					<p data-enter style="--enter:4">
+						I keep ending up in fintech. Technical lead at J.P. Morgan, and now four core areas of Openbank's homebanking platform. I like money as a domain because it keeps you honest. When you get
+						an interface wrong there, it costs somebody something and everybody notices the same day. J.P. Morgan is still the best place I've ever worked, and I'd go back tomorrow if the role could
+						be remote. It can't be, and remote is the one thing I won't budge on.
+					</p>
+					<p data-enter style="--enter:5">
+						I'm good at this work, and that's exactly why I'm deliberately being bad at something else for a while. Python on the server again, and shipping features that have a model inside them,
+						which is a very different thing from having a model help me write the code. The comfortable option is to keep getting better at a smaller and smaller thing, and I don't want that.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- The three strands, and only the parts of them that are not said
+		     better somewhere else on this page.
+
+		     This section used to be the home page's "Practice", and it ran claim →
+		     account → evidence for each of the three: about three hundred words
+		     and nine figures. Every one of those figures — 11, 60%, 90%, 8, 2015,
+		     1, 2026 — is quoted from the Milestones entries directly below it, and
+		     the accounts retold the same roles in the same order. So what is left
+		     here is the layer that is genuinely only stated here: the one plain
+		     sentence per strand, and the vocabulary.
+
+		     The dropped prose is still in `practice[].body` in src/lib/consts.ts,
+		     untouched. Putting it back is one line if this reads too thin. -->
+		<section class="shell shell-river py-section-tight">
+			<SectionHead eyebrow="Practice" tick split>
+				<h2 class="measure-wide">What I do, and how new I am at it.</h2>
+				<p slot="note" class="max-w-[34ch] text-secondary">Four strands. One I did for eight years, one I have done for eleven, one I am aiming at, and one I am building right now to get there.</p>
+			</SectionHead>
+
+			<div class="rows">
+				{
+					practice.map((item, i) => (
+						<article class="grid grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-5 py-9 lg:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]" data-rise>
+							<div class="flex items-baseline gap-4 lg:flex-col lg:items-start lg:gap-2">
+								<span class="time text-quaternary" aria-hidden="true">
+									{String(i + 1).padStart(2, '0')}
+								</span>
+								<span class="label text-accent">{item.label}</span>
+								<span class="label text-tertiary">{item.status}</span>
+							</div>
+
+							<div>
+								<h3 class="claim claim-sm measure-wide mb-4">{item.plain}</h3>
+
+								<ul class="flex flex-wrap gap-x-5 gap-y-2">
+									{item.keywords.map((keyword) => (
+										<li class="label normal-case tracking-[0.03em] text-tertiary">{keyword}</li>
+									))}
+								</ul>
+							</div>
+						</article>
+					))
+				}
+			</div>
+		</section>
+
+		<Milestones />
+
+		<section class="shell shell-river py-section-tight">
+			<SectionHead eyebrow="How it started" tick split>
+				<h2 class="measure-wide">The jobs that never made it onto the CV.</h2>
+			</SectionHead>
+
+			<div class="grid grid-cols-[minmax(0,1fr)] gap-x-16 gap-y-6 lg:grid-cols-2" data-rise>
+				<div class="space-y-5 text-secondary">
+					<p>
+						In 2007 I was writing software for Catholic schools in Europe. I've genuinely forgotten which country. After that, systems for the Italian government, and then a run of jobs I couldn't put
+						in the right order today if you asked me to.
+					</p>
+					<p>The one I remember properly is Hewlett-Packard, working on American Airlines' frequent-flyer programme. It sent me to Dallas Fort Worth twice, which I loved.</p>
+				</div>
+				<div class="space-y-5 text-secondary">
+					<p>
+						Then Redbee, where the Back-End took a step back (pun intended), AngularJS got the front row, and the browser slowly started looking prettier (I did it again). A few moves and a few trends
+						later, I taught myself React from a course and there was no way back. Going back to Python now is me going back to where it all started.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- `#enso` is linked from the footer ("円相 · the story behind the mark"),
+		     so the id lands on the section rather than on the ensō panel itself:
+		     arriving at the second of two side-by-side cards with its own heading
+		     scrolled off the top reads as a broken link. `scroll-mt-24` clears the
+		     fixed header, same as every other anchored section on the site. -->
+		<section class="shell shell-river scroll-mt-24 py-section" id="enso">
+			<SectionHead eyebrow="Off the screen" tick split>
+				<h2 class="measure-wide">Two ideas from aikido that I still use.</h2>
+			</SectionHead>
+
+			<!-- Two panels divided by a rule rather than two cards floating on the
+			     page. Same hairline system as every other list here. -->
+			<div class="rows grid grid-cols-[minmax(0,1fr)] lg:grid-cols-2 lg:divide-x lg:divide-rule lg:[&>*+*]:border-t-0">
+				<article class="grid grid-cols-[minmax(0,1fr)] gap-8 py-10 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-10 lg:px-10 lg:first:pl-0 lg:last:pr-0" data-rise>
+					<Image src={aikido} alt="合氣道 · aikidō, written in brush calligraphy" width={220} height={220} loading="lazy" class="h-32 w-auto shrink-0 self-start dark:invert" />
+
+					<div>
+						<p class="label mb-3 text-accent">正勝吾勝 · Masakatsu agatsu</p>
+						<p class="mb-4 font-display text-h3 leading-snug text-primary">True victory is victory over oneself.</p>
+						<p class="text-secondary">
+							I briefly trained in aikido many years ago, and read a lot more than I trained. Budo, bushido, all the philosophy behind the technique. Be better today than you were yesterday. It's the
+							only kind of competition I've ever found useful.
+						</p>
+					</div>
+				</article>
+
+				<article class="grid grid-cols-[minmax(0,1fr)] gap-8 py-10 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-10 lg:px-10 lg:first:pl-0 lg:last:pr-0" data-rise>
+					<Image src={enso} alt="" width={220} height={220} loading="lazy" class="size-28 shrink-0 self-start" aria-hidden="true" />
+
+					<div>
+						<p class="label mb-3 text-accent">円相 · Ensō</p>
+						<p class="mb-4 font-display text-h3 leading-snug text-primary">One stroke, left open.</p>
+						<p class="text-secondary">
+							An ensō is a hand-drawn circle, one stroke, left open. Open means imperfect, which means it can still change. Same as everything else... it could always be better, but something
+							delivered beats perfection that never arrives.
+						</p>
+					</div>
+				</article>
+			</div>
+		</section>
+
+		<!-- Three columns of year, name and issuer is a table, and a table is
+		     evidence — so it goes on the ink plane. As a *panel*, though, not as
+		     the full-bleed band it used to be: the claim above it stays on the
+		     ground in the reading voice, and only the receipts are raised. -->
+		<section class="shell shell-river py-section">
+			<SectionHead eyebrow="Keeping current" tick split>
+				<h2 class="measure-wide">What I've been studying.</h2>
+				<p slot="note" class="max-w-[34ch] text-secondary">The 2026 entries are me putting something behind the Python and AI claims.</p>
+			</SectionHead>
+
+			<Evidence label="Courses and certifications" bodyClass="px-6 sm:px-7" data-rise>
+				<ol>
+					{
+						certifications.map((cert) => (
+							<li class="grid gap-x-10 gap-y-1 border-t border-rule py-5 first:border-t-0 md:grid-cols-[6rem_minmax(0,1fr)_auto]">
+								<span class="time text-accent">{cert.year}</span>
+								<span class="text-primary">{cert.name}</span>
+								<span class="label text-tertiary">{cert.issuer}</span>
+							</li>
+						))
+					}
+				</ol>
+			</Evidence>
+		</section>
+
+		<!-- What I'm after before Colleagues, which is the opposite of the order
+		     a sales page would use. The endorsements are the one section here
+		     that asserts rather than shows, so they do not get to be the last
+		     thing a reader passes on the way to the contact block. They sit
+		     underneath it instead: there for anybody who wants them, in nobody's
+		     way. -->
+		<Contact
+			id="contact"
+			eyebrow="What I'm after"
+			heading="Fullstack work with AI in it."
+			body="Remote, in Europe, and fintech if I get to pick (been there, loved that). Ideally somewhere I can grow into Fullstack and AI. And I'm happy to talk to anyone else making the same move."
+		/>
+
+		<Testimonials />
+	</main>
+</Layout>

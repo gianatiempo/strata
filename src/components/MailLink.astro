@@ -1,0 +1,61 @@
+---
+import { SITE } from '@lib/consts'
+
+/* The address never reaches the HTML as an address.
+
+   It ships as two base64 chunks with no "@" anywhere between them, so the two
+   things harvesters actually grep for — a `mailto:` href, and /\S+@\S+\.\S+/
+   over the page text — both come up empty. The href is assembled in the
+   browser on load.
+
+   This stops naive crawlers, which is most of them. It does not stop anyone who
+   runs a headless browser or who thinks to base64-decode a pair of data
+   attributes, and it can do nothing about the address already sitting in the
+   public repo, in the CV PDF, and on LinkedIn. Worth having, not worth
+   believing in.
+
+   Without JavaScript the row is inert rather than wrong, and the <noscript>
+   beside it points at the two other ways to reach him. Putting a human-readable
+   "name [at] gmail" fallback in the markup instead would hand the address back
+   to exactly the scrapers this is meant to stop. */
+
+interface Props {
+	class?: string
+}
+
+const { class: className } = Astro.props
+
+const [user, domain] = SITE.EMAIL.split('@')
+const u = Buffer.from(user).toString('base64')
+const d = Buffer.from(domain).toString('base64')
+---
+
+<a data-mail-u={u} data-mail-d={d} class={className}>
+	<slot />
+</a>
+
+<noscript>
+	<p class="label px-6 py-5 text-tertiary">
+		Email needs JavaScript here. <a href="https://www.linkedin.com/in/gianatiempo/" class="link-sweep text-accent" target="_blank" rel="noopener noreferrer">LinkedIn</a> works without it.
+	</p>
+</noscript>
+
+<script>
+	/* Registered on `document`, which survives a ViewTransitions swap, and run
+	   again on every navigation: a hoisted module script is evaluated once per
+	   full page load, so without the `astro:page-load` pass the second page you
+	   visit would keep an unwired link. */
+	const wire = () => {
+		document.querySelectorAll<HTMLAnchorElement>('a[data-mail-u]').forEach((link) => {
+			const { mailU, mailD } = link.dataset
+			if (!mailU || !mailD) return
+
+			link.href = `mailto:${window.atob(mailU)}@${window.atob(mailD)}`
+			delete link.dataset.mailU
+			delete link.dataset.mailD
+		})
+	}
+
+	wire()
+	document.addEventListener('astro:page-load', wire)
+</script>

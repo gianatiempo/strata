@@ -1,0 +1,30 @@
+---
+/* The through-line. One per page, mounted by Layout inside <main>.
+ *
+ * It renders nothing but a 2px rule, and it is the site's whole argument:
+ * solid above the reader, a breathing marker at them, a dashed stroke below
+ * that crawls downward forever and never closes. Identical on every page. See
+ * "The spine" in tokens.css for how each of those is drawn.
+ *
+ * WHY A `.shell` INSIDE AN OVERLAY. The line has to land on exactly the same
+ * x as the content, at every viewport width, on every page — and the content's
+ * x is whatever `.shell` resolves to, which is a max-width plus a centring
+ * margin plus a breakpoint-dependent padding. Rather than restate that sum
+ * here and keep two copies of it in step by hand, the overlay simply contains
+ * a real `.shell` and hangs the line off its content edge. Change `.shell` and
+ * the spine follows, because it is measuring the same box.
+ *
+ * `transition:persist`: Astro's view transitions swap the document on
+ * navigation, and the one thing this device must not do is blink out and come
+ * back when you move between pages. Persisting the node is what makes the site
+ * read as one continuous document rather than four that look alike. Note that
+ * the animation itself needs no help — a scroll-driven animation tracks a
+ * position rather than elapsed time, so it is correct the instant it attaches.
+ */
+---
+
+<div class="spine" aria-hidden="true" transition:persist>
+	<div class="shell spine-track">
+		<span class="spine-line"></span>
+	</div>
+</div>

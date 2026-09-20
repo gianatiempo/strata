@@ -1,0 +1,36 @@
+---
+/* Layer one, at section scale.
+ *
+ * Every section opens on a sentence with nothing in it that a reader would
+ * have to look up. The technical layers underneath are allowed to be dense
+ * precisely because this one is not — a reader who understands only the claims
+ * still leaves with the argument.
+ *
+ * The `note` slot is the standfirst that sits to the right at large widths.
+ * `.section-head--split` is a two-column grid, so it must stay at exactly two
+ * children: everything above goes in the first, the note is the second, and an
+ * unused slot renders nothing rather than an empty track.
+ */
+
+interface Props {
+	eyebrow?: string
+	class?: string
+	split?: boolean
+	/* Draws a 2.35rem rule from the eyebrow back to the spine, so the section
+	   reads as attached to the through-line rather than merely beside it. Off
+	   by default: a tick on every heading would turn the device into a bullet
+	   list, and the point of it is that it is occasional. */
+	tick?: boolean
+}
+
+const { eyebrow, class: className, split = false, tick = false } = Astro.props
+---
+
+<header class:list={['section-head', split && 'section-head--split', className]} data-rise>
+	<div class="grid gap-3">
+		{eyebrow && <p class:list={['label text-accent', tick && 'tick']}>{eyebrow}</p>}
+		<slot />
+	</div>
+
+	<slot name="note" />
+</header>

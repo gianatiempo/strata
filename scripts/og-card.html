@@ -1,0 +1,266 @@
+<!doctype html>
+<!--
+	Source for public/og.png, the card every standing page unfurls with.
+
+	It is Strata in one frame, and deliberately the same composition the
+	per-entry cards use (src/lib/og.ts): the claim set large on the ground, the
+	receipts raised on an ink panel underneath it, the spine down the left
+	gutter. A link to the home page and a link to a post should look like two
+	cards from one publication, so the only things that differ are the ensō and
+	what the strip is counting.
+
+	It used to be the seam: the same headline rendered twice, the second copy
+	clipped to the far side of 54% so the split cut through a word. The seam is
+	gone from the site, so it is gone from here.
+
+	Every value below is copied from src/styles/tokens.css in oklch, day theme,
+	because a card has no theme to follow and cream stands out in a feed that is
+	mostly white. Changing a token there means changing it here.
+
+	To regenerate after a copy change:
+
+	  npx playwright screenshot --viewport-size=1200,630 \
+	    scripts/og-card.html public/og.png
+
+	Then update `ogImageAlt` in src/Layout.astro to match what the card now says.
+-->
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<style>
+			@font-face {
+				font-family: 'Instrument Serif';
+				font-style: normal;
+				font-weight: 400;
+				src: url('../node_modules/@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2') format('woff2');
+			}
+			@font-face {
+				font-family: 'Instrument Serif';
+				font-style: italic;
+				font-weight: 400;
+				src: url('../node_modules/@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2') format('woff2');
+			}
+			@font-face {
+				font-family: 'JetBrains Mono';
+				font-style: normal;
+				font-weight: 100 800;
+				src: url('../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2') format('woff2');
+			}
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			html,
+			body {
+				width: 1200px;
+				height: 630px;
+				overflow: hidden;
+			}
+
+			/* The ground, day. */
+			.card {
+				position: relative;
+				width: 1200px;
+				height: 630px;
+				isolation: isolate;
+				display: flex;
+				flex-direction: column;
+				padding: 58px 72px 56px;
+				background: oklch(0.981 0.004 85);
+				color: oklch(0.158 0.012 55);
+
+				--muted: oklch(0.512 0.016 55);
+				--accent: oklch(0.567 0.185 34);
+				--rule-strong: oklch(0.158 0 0 / 0.22);
+
+				--ev-bg: oklch(0.222 0.028 252);
+				--ev-text: oklch(0.958 0.006 240);
+				--ev-muted: oklch(0.678 0.018 242);
+				--ev-accent: oklch(0.792 0.128 197);
+				--ev-rule: oklch(1 0 0 / 0.13);
+			}
+
+			/* The spine. On the site it carries reading position down the page;
+			   on a still card there is nothing to be partway through, so it is
+			   drawn at its rest state — one unbroken hairline, exactly what the
+			   page renders under prefers-reduced-motion. */
+			.spine {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 40px;
+				width: 2px;
+				background: var(--rule-strong);
+			}
+
+			/* The tick, drawn from the eyebrow back to the spine so the line reads
+			   as something the content hangs off rather than a border. */
+			.eyebrow {
+				position: relative;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 20px;
+				font-weight: 600;
+				letter-spacing: 0.15em;
+				text-transform: uppercase;
+				white-space: nowrap;
+			}
+
+			.eyebrow::before {
+				content: '';
+				position: absolute;
+				top: 50%;
+				right: calc(100% + 14px);
+				width: 18px;
+				height: 2px;
+				background: var(--rule-strong);
+			}
+
+			.domain {
+				font-weight: 600;
+				color: var(--accent);
+			}
+
+			/* The claim. flexGrow takes the slack and the text is anchored to the
+			   bottom of it, so the headline always sits just above the strip and
+			   grows upward into the air instead of floating mid-card. */
+			.claim {
+				display: flex;
+				align-items: flex-end;
+				flex-grow: 1;
+				gap: 48px;
+				padding: 30px 0 44px;
+			}
+
+			h1 {
+				max-width: 730px;
+				font-family: 'Instrument Serif', serif;
+				font-weight: 400;
+				font-size: 88px;
+				line-height: 0.95;
+				letter-spacing: -0.028em;
+			}
+
+			h1 em {
+				font-style: italic;
+				color: var(--accent);
+			}
+
+			/* The one mark on the site. Kept at the claim's baseline rather than
+			   pinned to a corner, so it reads as part of the lockup. */
+			.enso {
+				width: 178px;
+				height: 178px;
+				margin-left: auto;
+				margin-bottom: 6px;
+				flex: none;
+			}
+
+			/* Layer three, raised. Same fill, edge, radius and lift as `.evidence`
+			   in tokens.css, at the day values. */
+			.evidence {
+				position: relative;
+				display: flex;
+				align-items: stretch;
+				background: var(--ev-bg);
+				border: 1px solid oklch(1 0 0 / 0.1);
+				border-radius: 18px;
+				box-shadow:
+					0 1px 1px oklch(0.158 0 0 / 0.04),
+					0 18px 36px -20px hsl(30 8% 45% / 0.5),
+					0 4px 10px -6px hsl(30 8% 45% / 0.25);
+			}
+
+			/* The hairline of light along the top edge, which is what stops the
+			   panel reading as a hole punched in the page. */
+			.evidence::before {
+				content: '';
+				position: absolute;
+				inset-inline: 18px;
+				top: -1px;
+				height: 1px;
+				background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.07), transparent);
+			}
+
+			.stat {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				gap: 9px;
+				padding: 26px 30px;
+				font-family: 'JetBrains Mono', monospace;
+				white-space: nowrap;
+			}
+
+			.stat + .stat {
+				border-left: 1px solid var(--ev-rule);
+			}
+
+			.stat dt {
+				font-size: 17px;
+				font-weight: 600;
+				letter-spacing: 0.13em;
+				text-transform: uppercase;
+				color: var(--ev-accent);
+			}
+
+			.stat dd {
+				font-size: 20px;
+				font-weight: 500;
+				letter-spacing: -0.01em;
+				color: var(--ev-text);
+			}
+
+			/* Same film grain as the site, so the card shares its surface. */
+			.grain {
+				position: absolute;
+				inset: 0;
+				z-index: 2;
+				opacity: 0.03;
+				pointer-events: none;
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+			}
+		</style>
+	</head>
+	<body>
+		<div class="card">
+			<span class="spine"></span>
+
+			<p class="eyebrow">
+				<span>Ariel Gianatiempo · Málaga, Spain</span>
+				<span class="domain">arielgianatiempo.com</span>
+			</p>
+
+			<div class="claim">
+				<h1>Nineteen years making complicated software easier to <em>use</em>.</h1>
+				<img class="enso" src="../src/assets/enso.png" alt="" />
+			</div>
+
+			<dl class="evidence">
+				<div class="stat">
+					<dt>Front-End</dt>
+					<dd>Last eleven years</dd>
+				</div>
+				<div class="stat">
+					<dt>Back-End</dt>
+					<dd>First eight years</dd>
+				</div>
+				<div class="stat">
+					<dt>Python</dt>
+					<dd>One day, now day one</dd>
+				</div>
+				<div class="stat">
+					<dt>AI</dt>
+					<dd>Getting started</dd>
+				</div>
+			</dl>
+
+			<div class="grain"></div>
+		</div>
+	</body>
+</html>

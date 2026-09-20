@@ -1,65 +1,103 @@
 ---
 import ThemeIcon from '@components/base/ThemeIcon.astro'
-import Container from './components/base/Container.astro'
-import Frame from './components/base/Frame.astro'
 import { links } from '@lib/consts'
 ---
 
-<header>
-	<nav class="absolute z-50 w-full lg:bg-transparent dark:lg:bg-transparent">
-		<Container>
-			<div class="absolute right-4 top-4 z-[100] text-zinc-600 dark:text-zinc-300">
-				<ThemeIcon />
-			</div>
-			<div class="relative py-4">
-				<div class="fixed inset-x-0 m-auto hidden size-fit sm:block">
-					<Frame>
-						<div class="relative w-full text-zinc-600 dark:text-zinc-300">
-							<ul class="flex flex-row gap-0 text-xs tracking-wide sm:gap-3 md:gap-6 md:text-sm">
-								{
-									links.map((link) => (
-										<li>
-											<a href={link.to} class="block rounded-full p-1 transition md:px-2 lg:px-4">
-												<span>{link.label}</span>
-											</a>
-										</li>
-									))
-								}
-							</ul>
-						</div>
-					</Frame>
-				</div>
-				<div class="sm:hidden">
-					<div class="group">
-						<button
-							type="button"
-							class="rounded-md border border-white/50 bg-zinc-950/5 p-2 text-zinc-600 ring-1 ring-zinc-950/10 backdrop-blur-2xl transition focus:outline-none dark:border-white/5 dark:bg-white/5 dark:text-zinc-300 dark:ring-zinc-950/25 md:px-4"
-						>
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25"></path>
-							</svg>
-						</button>
+<!-- Opaque, not translucent. Site furniture is a constant: it sits *on* the
+     page rather than dissolving into it, and the condense on scroll reads
+     through padding, border and shadow rather than through a blur.
 
-						<div
-							class="invisible absolute left-1 mt-1 w-40 origin-top-left divide-y rounded-md border border-white/50 bg-zinc-950/5 p-2 opacity-0 shadow-lg ring-1 ring-zinc-950/10 backdrop-blur-2xl transition duration-300 group-hover:visible group-hover:opacity-100 dark:border-white/5 dark:bg-white/5 dark:bg-zinc-950 dark:ring-zinc-950/25"
-						>
-							<div class="relative w-full text-zinc-600 dark:text-zinc-300">
-								<ul class="flex flex-col gap-0 text-xs tracking-wide sm:gap-3 md:gap-6 md:text-sm">
-									{
-										links.map((link) => (
-											<li>
-												<a href={link.to} class="block rounded-full p-1 transition md:px-4">
-													<span>{link.label}</span>
-												</a>
-											</li>
-										))
-									}
-								</ul>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</Container>
-	</nav>
+     A progressive-blur veil lived here briefly — four stacked backdrop layers
+     of increasing blur so the page went gradually out of focus as it
+     approached the bar, with no edge anywhere. It worked and it measured
+     clean, and it was still not worth the two hundred lines: at the amplitude
+     that kept the nav legible it was too quiet to notice, and the amplitude
+     that would have been noticeable is the one that makes text hard to read.
+
+     The nav is four items now and the breakpoint came down with it: seven
+     needed `lg` to fit, four fit at `sm`, so most phones get the real nav
+     instead of a disclosure button hiding four links. -->
+<header data-header class="fixed inset-x-0 top-0 z-50 border-b border-transparent bg-canvas [--header-pad:1.125rem]">
+	<div class="shell flex items-center justify-between gap-6" style="padding-block: var(--header-pad); transition: padding-block 320ms var(--ease-glide)">
+		<a href="/" class="label link-sweep text-primary hover:text-accent">Ariel Gianatiempo</a>
+
+		<nav class="hidden sm:block" aria-label="Primary">
+			<ul class="flex items-center gap-6">
+				{
+					links.map((link) => (
+						<li>
+							<a href={link.to} class="label link-sweep hover:text-accent" target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener noreferrer' : undefined}>
+								{link.label}
+								{link.external && <span aria-hidden="true"> ↗</span>}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+
+		<div class="flex items-center gap-3">
+			<ThemeIcon />
+
+			<details class="relative sm:hidden" data-menu>
+				<summary
+					class="label flex cursor-pointer list-none items-center gap-2 rounded-full border border-rule px-3.5 py-2 text-primary transition-colors duration-300 hover:border-rule-strong [&::-webkit-details-marker]:hidden"
+				>
+					Menu
+				</summary>
+				<nav class="absolute right-0 z-50 mt-2 w-48 rounded-xl border border-rule bg-surface p-2 shadow-[0_16px_48px_-16px_hsl(var(--shadow-color)/0.35)]" aria-label="Primary">
+					<ul class="flex flex-col">
+						{
+							links.map((link) => (
+								<li>
+									<a
+										href={link.to}
+										class="label block rounded-lg px-3 py-2.5 transition-colors duration-300 hover:bg-sunken hover:text-accent"
+										target={link.external ? '_blank' : undefined}
+										rel={link.external ? 'noopener noreferrer' : undefined}
+									>
+										{link.label}
+										{link.external && <span aria-hidden="true"> ↗</span>}
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</nav>
+			</details>
+		</div>
+	</div>
 </header>
+
+<script>
+	/* <details> gives the menu its open/closed state, its keyboard handling and
+	   its ARIA for free — but nothing dismisses it. On a pointer device an open
+	   menu is forgiving because you are about to move the mouse anyway; on touch
+	   there is no such escape, so tapping "Practice" scrolled the page and then
+	   left the panel sitting on top of the section it had just scrolled to.
+
+	   The element is looked up per event rather than captured once: ViewTransitions
+	   swaps the whole document on navigation, so a cached reference would point at
+	   a header that is no longer on the page. Listeners live on `document`, which
+	   survives the swap, so they are registered exactly once. */
+	const menu = () => document.querySelector<HTMLDetailsElement>('header details[data-menu]')
+
+	document.addEventListener('click', (event) => {
+		const panel = menu()
+		if (!panel?.open || !(event.target instanceof Node)) return
+
+		// Outside the menu entirely, or on one of its links — an in-page anchor
+		// navigates without a page load, so nothing else would ever close it.
+		const target = event.target instanceof Element ? event.target : event.target.parentElement
+		if (!panel.contains(event.target) || target?.closest('a')) panel.open = false
+	})
+
+	document.addEventListener('keydown', (event) => {
+		const panel = menu()
+		if (event.key !== 'Escape' || !panel?.open) return
+
+		panel.open = false
+		// Focus would otherwise be left on a node that is now display:none.
+		panel.querySelector('summary')?.focus()
+	})
+</script>
