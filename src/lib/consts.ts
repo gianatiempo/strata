@@ -321,5 +321,5 @@ export const links: { to: string; label: string; external?: boolean }[] = [
 	{ to: '/about', label: 'About' },
 	{ to: '/writing', label: 'Writing' },
 	{ to: '/#contact', label: 'Contact' },
-	{ to: '/Ariel-Gianatiempo-Resume.pdf', label: 'CV', external: true }
+	{ to: '/Ariel-Gianatiempo-Resume.pdf', label: 'Resume', external: true }
 ]
