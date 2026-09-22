@@ -3,21 +3,26 @@ import ThemeIcon from '@components/base/ThemeIcon.astro'
 import { links } from '@lib/consts'
 ---
 
-<!-- Opaque, not translucent. Site furniture is a constant: it sits *on* the
-     page rather than dissolving into it, and the condense on scroll reads
-     through padding, border and shadow rather than through a blur.
+<!-- Glass, not opaque: real translucency and blur (see tokens.css, [data-header]),
+     one fixed blur amount rather than something that varies across the scroll
+     range, kept at high opacity on purpose so nav-link contrast never depends
+     on whatever is scrolling underneath. Background, border colour and the
+     bottom rim all live in tokens.css now — the classes below only set
+     layout and border-*width*.
 
-     A progressive-blur veil lived here briefly — four stacked backdrop layers
-     of increasing blur so the page went gradually out of focus as it
+     A progressive-blur veil lived here before that: four stacked backdrop
+     layers of increasing blur so the page went gradually out of focus as it
      approached the bar, with no edge anywhere. It worked and it measured
      clean, and it was still not worth the two hundred lines: at the amplitude
      that kept the nav legible it was too quiet to notice, and the amplitude
      that would have been noticeable is the one that makes text hard to read.
+     One fixed blur amount, always at the same (high) opacity, sidesteps that
+     trade-off rather than tuning it.
 
      The nav is four items now and the breakpoint came down with it: seven
      needed `lg` to fit, four fit at `sm`, so most phones get the real nav
      instead of a disclosure button hiding four links. -->
-<header data-header class="fixed inset-x-0 top-0 z-50 border-b border-transparent bg-canvas [--header-pad:1.125rem]">
+<header data-header class="fixed inset-x-0 top-0 z-50 border-b [--header-pad:1.125rem]">
 	<div class="shell flex items-center justify-between gap-6" style="padding-block: var(--header-pad); transition: padding-block 320ms var(--ease-glide)">
 		<a href="/" class="label link-sweep text-primary hover:text-accent">Ariel Gianatiempo</a>
 

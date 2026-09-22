@@ -278,6 +278,13 @@
 	pointer-events: none;
 }
 
+/* Glass was trialed here too (frost + translucency, an accent-tinted hairline)
+   alongside the header and Practice cards below. Kept out: these panels read
+   as "the receipts" precisely because they're a solid plane dropped onto the
+   page (see the file header comment on `.ink`/`.evidence`) — translucency
+   undercut that, and Signal's particles are sparse enough that most panels
+   had nothing busy behind them to frost anyway. Left solid on purpose. */
+
 /* ---- Figures -------------------------------------------------------------
    The loud part of the evidence layer, and the part that crosses the
    vocabulary barrier: "90%" needs no glossary. Tabular so a column of them
@@ -1279,16 +1286,93 @@ a:where(.time) {
 	initial-value: 1.125rem;
 }
 
-/* Leaving the masthead: the bar tightens and grows an edge. Site furniture is
-   a constant — it sits *on* the page rather than dissolving into it — so the
-   condense reads through padding, border and shadow rather than through a
-   blur. */
+/* Leaving the masthead: the bar tightens and grows an edge as it condenses.
+   No opaque `background-color` snap here — the header is glass throughout
+   the scroll range (see [data-header] below), not just once condensed. */
 @keyframes header-condense {
 	to {
 		--header-pad: 0.625rem;
-		background-color: var(--bg-canvas);
-		border-color: var(--rule);
 		box-shadow: 0 1px 24px -12px hsl(var(--shadow-color) / 0.5);
+	}
+}
+
+/* ---- The header, glass -----------------------------------------------------
+   "Our own take" rather than a redo of the four-layer progressive veil the
+   comment above the header once described and rejected: one fixed blur
+   amount (not varying across the scroll range) at high opacity, so nav-link
+   contrast never depends on whatever is scrolling underneath — it reads as
+   real glass (blur + translucency + a lit rim) without gambling legibility
+   on it. The rim is tinted with --accent rather than plain white, Strata's
+   own glass rather than borrowed chrome, and — unlike the old opaque
+   version's border, which only appeared once condensed — is always visible:
+   a translucent panel needs a defined edge from the very top of the page. */
+[data-header] {
+	background-color: color-mix(in oklch, var(--bg-canvas) 82%, transparent);
+	backdrop-filter: blur(14px) saturate(140%);
+	-webkit-backdrop-filter: blur(14px) saturate(140%);
+	border-color: color-mix(in oklch, var(--accent) 30%, var(--rule));
+}
+
+[data-header]::after {
+	content: '';
+	position: absolute;
+	inset-inline: 0;
+	bottom: -1px;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--accent) 55%, transparent), transparent);
+	pointer-events: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+	[data-header] {
+		background-color: var(--bg-canvas);
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+	}
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+	[data-header] {
+		background-color: var(--bg-canvas);
+	}
+}
+
+/* ---- Practice cards, glass on hover ----------------------------------------
+   The four "Practice" entries (Foundation/Blooming/Mastery/Building) sit
+   directly on the ground, not on an ink plane, so there is no panel to make
+   translucent at rest. Instead glass appears on interaction: hovering
+   materializes a frosted card out of the plain page. margin/padding-inline
+   cancel out at rest (so the resting layout is pixel-identical to a plain
+   article), and only paint properties change on hover — no layout shift, per
+   60fps-animation. `hover: hover` guards touch, where hover states stick. */
+.practice-card {
+	position: relative;
+	margin-inline: -1.25rem;
+	padding-inline: 1.25rem;
+	border-radius: 1rem;
+	border: 1px solid transparent;
+	transition:
+		background-color 300ms ease,
+		backdrop-filter 300ms ease,
+		box-shadow 300ms ease,
+		border-color 300ms ease;
+}
+
+@media (hover: hover) {
+	.practice-card:hover {
+		background-color: color-mix(in oklch, var(--bg-canvas) 55%, transparent);
+		backdrop-filter: blur(18px) saturate(150%);
+		-webkit-backdrop-filter: blur(18px) saturate(150%);
+		border-color: color-mix(in oklch, var(--accent) 30%, var(--rule));
+		box-shadow: 0 20px 40px -28px hsl(var(--shadow-color) / 0.5);
+	}
+}
+
+@media (prefers-reduced-transparency: reduce) {
+	.practice-card:hover {
+		background-color: var(--bg-sunken);
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
 	}
 }
 
