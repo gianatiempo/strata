@@ -62,7 +62,7 @@ Work through these in order. Everything listed here is copy or configuration; no
 | ------------------------------------------------------ | ------------------------------------------------------ |
 | Site URL (canonical tags, sitemap, RSS, OG image URLs) | `astro.config.mjs` → `site`                            |
 | Title, description, email, posts-on-homepage count     | `src/lib/consts.ts` → `SITE`                           |
-| Favicons                                               | `public/favicon-32.png`, `public/favicon-180.png`      |
+| Favicons                                               | `public/favicon-32.png`, `favicon-180.png`, `apple-touch-icon.png` |
 | Browser chrome color                                   | `src/Layout.astro` → the two `theme-color` meta tags   |
 | `robots.txt` (contains the sitemap URL)                | `public/robots.txt`                                    |
 | CV / résumé PDF                                        | `public/` — then point the `CV` entry in `links` at it |
