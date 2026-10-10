@@ -7,9 +7,9 @@ import RepoCard from '@components/RepoCard.astro'
 import WritingList from '@components/WritingList.astro'
 import Layout from '../../Layout.astro'
 import { cardAlt, type CardOptions } from '@lib/og'
-import { humanize, readingTime, similarItems } from '@lib/utils'
+import { byNewest, humanize, readingTime, similarItems } from '@lib/utils'
 import { beats, beatTone, forms } from '@lib/consts'
-import { type CollectionEntry, getCollection } from 'astro:content'
+import { type CollectionEntry, getCollection, render } from 'astro:content'
 import { slug } from 'github-slugger'
 
 /* One template for posts, notes and projects.
@@ -23,27 +23,27 @@ import { slug } from 'github-slugger'
  */
 
 export async function getStaticPaths() {
-	const entries = (await getCollection('writing')).filter((entry) => !entry.data.draft).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+	const entries = (await getCollection('writing')).filter((entry) => !entry.data.draft).sort(byNewest)
 
 	return entries.map((entry) => ({
-		params: { slug: entry.slug },
+		params: { slug: entry.id },
 		props: entry
 	}))
 }
 type Props = CollectionEntry<'writing'>
 
-const entries = (await getCollection('writing')).filter((entry) => !entry.data.draft).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+const entries = (await getCollection('writing')).filter((entry) => !entry.data.draft).sort(byNewest)
 
-const index = entries.findIndex((e) => e.slug === Astro.params.slug)
+const index = entries.findIndex((e) => e.id === Astro.params.slug)
 const nextPost = entries[index + 1]
 const prevPost = entries[index - 1]
 
 const entry = Astro.props
-const { Content, headings } = await entry.render()
+const { Content, headings } = await render(entry)
 
 const beat = beats[entry.data.beat]
 const form = entry.data.form
-const similar = similarItems(entry, entries, entry.slug)
+const similar = similarItems(entry, entries, entry.id)
 
 /* Top-level sections only. A contents list that mirrors every h3 stops being a
    map and becomes a second copy of the article. */
@@ -65,7 +65,7 @@ const card: CardOptions = {
 }
 ---
 
-<Layout title={entry.data.title} description={entry.data.description} type="article" publishedDate={entry.data.date} image={`/og/writing/${entry.slug}.png`} imageAlt={cardAlt(card)}>
+<Layout title={entry.data.title} description={entry.data.description} type="article" publishedDate={entry.data.date} image={`/og/writing/${entry.id}.png`} imageAlt={cardAlt(card)}>
 	<!-- Reading progress. Scroll-linked in CSS, so it costs no JavaScript and
 	     disappears entirely when the reader has asked for reduced motion. -->
 	<div class="progress-rail" aria-hidden="true"><span data-progress></span></div>

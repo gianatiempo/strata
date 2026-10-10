@@ -1,6 +1,7 @@
-import tailwind from '@astrojs/tailwind'
-import { defineConfig, squooshImageService } from 'astro/config'
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig, sharpImageService } from 'astro/config'
 
+import { unified } from '@astrojs/markdown-remark'
 import mdx from '@astrojs/mdx'
 import sitemap from '@astrojs/sitemap'
 import rehypeSidenotes from './src/plugins/rehype-sidenotes.mjs'
@@ -26,7 +27,6 @@ export default defineConfig({
 		'/project/[...slug]': '/writing/[...slug]'
 	},
 	integrations: [
-		tailwind(),
 		// No filter. If you ever add a route you genuinely do not want indexed,
 		// exclude it here *and* say which route and why — a silent filter
 		// outlives its reason. (The /post and /project redirects above emit no
@@ -36,9 +36,10 @@ export default defineConfig({
 		mdx()
 	],
 	image: {
-		service: squooshImageService()
+		service: sharpImageService()
 	},
 	vite: {
+		plugins: [tailwindcss()],
 		ssr: {
 			/* `@resvg/resvg-js` loads a platform-specific `.node` binary, and
 			   esbuild has no loader for that extension — bundling it fails with
@@ -62,6 +63,6 @@ export default defineConfig({
 		shikiConfig: {
 			theme: 'css-variables'
 		},
-		rehypePlugins: [rehypeSidenotes]
+		processor: unified({ rehypePlugins: [rehypeSidenotes] })
 	}
 })

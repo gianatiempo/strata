@@ -22,19 +22,19 @@ import satori from 'satori'
  */
 
 /* Mirrors tokens.css, resolved to sRGB because satori has no oklch. These are
-   the *day* values: a link preview has no theme to follow, and cream stands
-   out in a feed that is mostly white cards. Changing a token here without
+	the *day* values: a link preview has no theme to follow, and the mineral
+	ground stands out in a feed that is mostly white cards. Changing a token here without
    changing it there is how the two drift apart — keep the pairs together. */
 const COLOR = {
-	ground: '#faf9f6', // --ground-bg-canvas
+	ground: '#f3f7f5', // --ground-bg-canvas
 	ink: '#111c28', // --ev-bg
-	primary: '#110c08', // --ground-text-primary
-	tertiary: '#6e645e', // --ground-text-tertiary
+	primary: '#17211f', // --ground-text-primary
+	tertiary: '#5c6965', // --ground-text-tertiary
 	inkText: '#eef2f5', // --ev-text-primary
 	inkTertiary: '#8e99a2', // --ev-text-tertiary
 	inkAccent: '#2ad4d7', // --ev-accent
-	inkAccentAlt: '#ffa370', // --ev-accent-alt
-	rule: '#c9c5c1' // --ground-rule-strong, flattened: satori has no alpha compositing on borders
+	inkAccentAlt: '#b8e77a', // --ev-accent-alt
+	rule: '#c5ceca' // --ground-rule-strong, flattened: satori has no alpha compositing on borders
 } as const
 
 /* Read straight out of node_modules at build time. Satori takes ttf/otf/woff
@@ -95,6 +95,10 @@ export async function renderCard({ title, kicker, beat, meta }: CardOptions): Pr
 			position: 'relative',
 			width: 1200,
 			height: 630,
+			/* Explicit, because satori 0.4x stopped assuming it: with the default
+			   content-box the 68/72px padding was added *on top of* 1200×630,
+			   pushing the right-hand kicker and the evidence strip off the card. */
+			boxSizing: 'border-box',
 			display: 'flex',
 			flexDirection: 'column',
 			justifyContent: 'space-between',

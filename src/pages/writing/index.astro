@@ -3,6 +3,7 @@ import Layout from '../../Layout.astro'
 import WritingList from '@components/WritingList.astro'
 import { beats, beatTone, forms, type Beat, type Form } from '@lib/consts'
 import { getCollection } from 'astro:content'
+import { byNewest } from '@lib/utils'
 
 /* The archive, and the downstream end of the site.
  *
@@ -22,7 +23,7 @@ import { getCollection } from 'astro:content'
  * apology, and there is no reason to publish one.
  */
 
-const entries = (await getCollection('writing')).filter((entry) => !entry.data.draft).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+const entries = (await getCollection('writing')).filter((entry) => !entry.data.draft).sort(byNewest)
 
 const byBeat = (Object.keys(beats) as Beat[]).map((key) => ({
 	key,
@@ -53,7 +54,7 @@ const firstYear = entries.length ? entries[entries.length - 1].data.date.getFull
 			<p class="label tick mb-7 text-accent" data-enter style="--enter:0">Writing</p>
 
 			<h1 class="max-w-title text-display leading-[0.93] tracking-[-0.03em]" data-enter style="--enter:1">
-				Both ends of the <em class="italic text-accent">stack</em>... Full<em class="italic text-accent">stack</em>?
+				Both ends of the <em class="claim-mark">stack</em>... Full<em class="claim-mark">stack</em>?
 			</h1>
 
 			<p class="measure mt-10 text-body-lg text-secondary" data-enter style="--enter:2">
@@ -94,7 +95,7 @@ const firstYear = entries.length ? entries[entries.length - 1].data.date.getFull
 		{
 			groups.map((group, i) => (
 				<section class:list={['shell shell-river', i === groups.length - 1 ? 'pb-section-loose' : 'pb-section-tight']} id={group.key}>
-					<header class="mb-8 border-b border-rule-strong pb-4" data-rise>
+					<header class="mb-6" data-rise>
 						<div class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
 							<h2 class="text-h2">{group.label}s</h2>
 							{/* The year only belongs on the first group. Repeating "since

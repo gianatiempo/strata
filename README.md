@@ -38,17 +38,17 @@ Almost no client JavaScript. One inline script sets the theme before first paint
 ## Quick start
 
 ```sh
-npm install
-npm run dev        # http://localhost:4321
-npm run build      # static output to ./dist
-npm run preview    # serve the build
-npx astro check    # typecheck .astro / .ts
-npm run format     # prettier
+pnpm install
+pnpm dev             # http://localhost:4321
+pnpm build           # static output to ./dist
+pnpm preview         # serve the build
+pnpm astro check     # typecheck .astro / .ts
+pnpm format          # prettier
 ```
 
-Node 18+. The project uses Yarn in the lockfile but npm works fine; pick one and delete the other lockfile.
+Node 22.12+ and pnpm (the version is pinned in `package.json` via `packageManager`; enable it with `corepack enable`).
 
-> **Run one `astro dev` at a time.** Two dev servers on this project share and clobber the `.astro/` content-collection cache, which shows up as `500 UnknownContentCollectionError` on post detail routes while every other route still returns 200. Astro dev also does not hot-reload `astro.config.mjs` — restart after changing it.
+> **Run one `astro dev` at a time.** Two dev servers on this project share and clobber the `.astro/` content-collection cache, which shows up as `500 UnknownContentCollectionError` on post detail routes while every other route still returns 200. Astro 7 starts the dev server in the background and prints its address (the next free port if 4321 is taken); stop it with `pnpm astro dev stop`. Astro dev also does not hot-reload `astro.config.mjs` — restart after changing it.
 
 ---
 
@@ -207,7 +207,7 @@ To remove it, delete the `<SignalField />` line in `Layout.astro`. Nothing else 
 
 ## Content: posts and projects
 
-**One collection, two forms.** Posts and projects are both `writing` entries with a `form` field, not two collections — a write-up about a build _is_ a piece of writing, and filing it elsewhere splits the one thing on a portfolio that is supposed to accumulate. Schema in `src/content/config.ts`. Markdown or MDX; a folder per entry with an `index.md` inside is the convention, but any `.md`/`.mdx` file works.
+**One collection, two forms.** Posts and projects are both `writing` entries with a `form` field, not two collections — a write-up about a build _is_ a piece of writing, and filing it elsewhere splits the one thing on a portfolio that is supposed to accumulate. Schema in `src/content.config.ts`. Markdown or MDX; a folder per entry with an `index.md` inside is the convention, but any `.md`/`.mdx` file works.
 
 ```
 src/content/
@@ -217,7 +217,7 @@ src/content/
     └── portfolio/index.md
 ```
 
-There is no `note` form and no `tldr` field. Both existed and both were removed on purpose; the reasoning is in the `FORMS` comment in `src/content/config.ts`.
+There is no `note` form and no `tldr` field. Both existed and both were removed on purpose; the reasoning is in the `FORMS` comment in `src/content.config.ts`.
 
 Folder names are for ordering in your editor only — the URL comes from `slug` in frontmatter, or from the filename if you omit it.
 
@@ -286,7 +286,7 @@ A beat is the subject facet that both posts and projects carry — the equivalen
 
 Defined in two places that must agree:
 
-1. `src/content/config.ts` → `BEATS` — the schema enum.
+1. `src/content.config.ts` → `BEATS` — the schema enum.
 2. `src/lib/consts.ts` → `beats` — how each one is presented.
 
 ```ts
@@ -389,15 +389,15 @@ Also in the box: text hierarchy tuned to clear WCAG AA at 13px (the comment in `
 
 ## Deploying
 
-Static output — `npm run build` writes `./dist`, which any static host will serve.
+Static output — `pnpm build` writes `./dist`, which any static host will serve.
 
-For Netlify or Vercel: build command `npm run build`, publish directory `dist`, no adapter needed. Set `site` in `astro.config.mjs` to your real domain **before** you build, or canonical tags, the sitemap, RSS links and the absolute OG image URLs will all point at the wrong place.
+For Netlify or Vercel: build command `pnpm build`, publish directory `dist`, no adapter needed. Set `site` in `astro.config.mjs` to your real domain **before** you build, or canonical tags, the sitemap, RSS links and the absolute OG image URLs will all point at the wrong place.
 
 ---
 
 ## Gotchas
 
-**`tokens.css` loads after Tailwind.** A plain class rule in that file beats a Tailwind utility of the same specificity on source order. Anything in `tokens.css` that is a _default_ rather than a decision is therefore wrapped in `:where()` to drop it to zero specificity — see `.meta` and `.row-link`. If you add a rule there and a utility mysteriously stops working, this is why.
+**`tokens.css` loads after Tailwind, and utilities are deliberately not in a cascade layer.** `src/styles/tailwind.css` is the single stylesheet entry. It imports Tailwind 4's theme and preflight into layers but leaves the utilities unlayered, then imports `tokens.css` after them, so the cascade works the way Tailwind 3's flat one did: a plain class rule in `tokens.css` beats a utility of the same specificity on source order, and a utility beats a `tokens.css` rule that is less specific. (Importing the whole of `tailwindcss` instead puts utilities in a layer, and layer order then outranks specificity — a bare `h1 { font-size }` in `tokens.css` would beat `text-display`.) Anything in `tokens.css` that is a _default_ rather than a decision is wrapped in `:where()` to drop it to zero specificity — see `.meta`, `.row-link` and the `.rows` dividers. If you add a rule there and a utility mysteriously stops working, this is why. Theme values still come from `tailwind.config.mjs`, loaded with `@config`.
 
 **One `astro dev` at a time.** See [Quick start](#quick-start).
 
@@ -425,8 +425,8 @@ src/
 │   ├── SignalField · Spine · Testimonials · WritingList
 │   ├── base/        ThemeIcon
 │   └── blog/        PostNavigation, FormattedDate, BackToPrevious
+├── content.config.ts   collection schema + BEATS + FORMS
 ├── content/
-│   ├── config.ts    collection schema + BEATS + FORMS
 │   └── writing/     posts and projects, one collection
 ├── lib/
 │   ├── consts.ts    site copy, nav, beats, all page data
@@ -436,12 +436,13 @@ src/
 ├── plugins/
 │   └── rehype-sidenotes.mjs
 └── styles/
-    └── tokens.css   the design system
+    ├── tailwind.css   the one stylesheet entry: Tailwind + layer order, then tokens.css
+    └── tokens.css     the design system
 ```
 
 ### Stack
 
-Astro 4 · Tailwind CSS 3 · TypeScript · MDX · Shiki · `@astrojs/sitemap` · `@astrojs/rss` · `@tailwindcss/typography` · satori + resvg (build-time only).
+Astro 7 · Tailwind CSS 4 (`@tailwindcss/vite`, config via `@config`) · TypeScript · MDX · Shiki · `@astrojs/markdown-remark` (the `unified` processor, for the sidenotes rehype plugin) · sharp (image service) · `@astrojs/sitemap` · `@astrojs/rss` · `@tailwindcss/typography` · satori + resvg (build-time only).
 
 ---
 

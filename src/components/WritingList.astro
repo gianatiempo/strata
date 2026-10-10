@@ -52,7 +52,7 @@ const { list, feature = false, showForm = true, class: className } = Astro.props
 
 				return (
 					<li data-rise>
-						<a href={`/writing/${entry.slug}`} class:list={['row-link group grid gap-x-10 gap-y-3 md:grid-cols-[10rem_minmax(0,1fr)]', large ? 'py-11 sm:py-14' : 'py-9']}>
+						<a href={`/writing/${entry.id}`} class:list={['row-link group grid gap-x-10 gap-y-3 md:grid-cols-[10rem_minmax(0,1fr)]', large ? 'py-11 sm:py-14' : 'py-9']}>
 							<div class="grid content-start gap-2">
 								<FormattedDate date={entry.data.date} class="time whitespace-nowrap" />
 								{beat && <span class:list={['label beat', beatTone[beat.tone]]}>{beat.label}</span>}

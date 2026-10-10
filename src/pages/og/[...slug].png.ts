@@ -22,7 +22,7 @@ export async function getStaticPaths() {
 	const entries = (await getCollection('writing')).filter((entry) => !entry.data.draft)
 
 	return entries.map((entry) => ({
-		params: { slug: `writing/${entry.slug}` },
+		params: { slug: `writing/${entry.id}` },
 		props: {
 			card: {
 				title: entry.data.title,

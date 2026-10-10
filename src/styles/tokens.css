@@ -18,7 +18,7 @@
    Strata splits by *depth of explanation* instead, which is a statement about
    the reader rather than about the topic:
 
-     1  claim      one plain sentence anyone can read   serif, large, warm
+	1  claim      one plain sentence anyone can read   serif, large
      2  account    the prose                            body sans, at measure
      3  evidence   numbers, code, tables, repos, dates  mono, dense, raised
 
@@ -52,11 +52,12 @@
 	--font-display: 'Instrument Serif', ui-serif, Georgia, serif;
 	--font-body: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
 	--font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace;
+	--claim-marker: var(--ev-accent); /* light teal: multiplied over dark text, so it stays legible */
 
 	/* ---- the ground, day ------------------------------------------------ */
-	--ground-bg-canvas: oklch(0.981 0.004 85);
-	--ground-bg-surface: oklch(1 0 0);
-	--ground-bg-sunken: oklch(0.955 0.006 85);
+	--ground-bg-canvas: oklch(0.979 0.008 160);
+	--ground-bg-surface: oklch(0.995 0.004 160);
+	--ground-bg-sunken: oklch(0.95 0.012 160);
 
 	/* Tertiary and quaternary are darker than they look like they should be,
 	   and deliberately. Almost everything set in them — `.meta` labels, dates,
@@ -65,28 +66,27 @@
 	   that are all legible at 13px on a 0.98 ground cannot be spread very far
 	   apart, so the range is compressed rather than the bottom of it being left
 	   illegible. */
-	--ground-text-primary: oklch(0.158 0.012 55);
-	--ground-text-secondary: oklch(0.422 0.016 55);
-	--ground-text-tertiary: oklch(0.512 0.016 55);
-	--ground-text-quaternary: oklch(0.548 0.015 55);
+	--ground-text-primary: oklch(0.17 0.012 175);
+	--ground-text-secondary: oklch(0.422 0.016 175);
+	--ground-text-tertiary: oklch(0.512 0.016 175);
+	--ground-text-quaternary: oklch(0.548 0.015 175);
 
-	--ground-accent: oklch(0.567 0.185 34);
-	--ground-accent-hover: oklch(0.492 0.192 34);
-	--ground-accent-muted: oklch(0.567 0.185 34 / 0.1);
-	/* The cool signal restated for a near-white ground. Evidence's own cyan is
-	   a 0.79-lightness hue and would run at about 1.7:1 here, so on the ground
-	   it becomes a deep teal of the same family. Same idea, legible either
-	   side. Used only for the `backend` beat marker. */
-	--ground-accent-alt: oklch(0.518 0.104 212);
+	--ground-accent: oklch(0.44 0.13 192);
+	--ground-accent-hover: oklch(0.36 0.14 192);
+	--ground-accent-muted: oklch(0.44 0.13 192 / 0.1);
+	/* A leaf-green counterpoint for taxonomy and the field; it remains distinct
+	   from the primary teal while retaining enough contrast on the ground. */
+	--ground-accent-alt: oklch(0.46 0.105 143);
 
-	--ground-rule: oklch(0.158 0 0 / 0.12);
-	--ground-rule-strong: oklch(0.158 0 0 / 0.22);
-	--ground-border: oklch(0.158 0 0 / 0.07);
-	--ground-shadow-color: 30 8% 45%;
+	--ground-rule: oklch(0.17 0 0 / 0.12);
+	--ground-rule-strong: oklch(0.17 0 0 / 0.22);
+	--ground-border: oklch(0.17 0 0 / 0.07);
+	--ground-shadow-color: 154 10% 42%;
 
 	/* ---- evidence, constant ---------------------------------------------
 	   Deep cool ink, declared once. It is a raised plane rather than a
-	   background: on the day ground it reads as a slab dropped onto paper, at
+	   background: on the day ground it reads as a slab dropped onto mineral,
+	   at
 	   night as a cooler plane lifted off warm ink. The lift is what makes the
 	   second reading possible at all — see --ev-edge / --ev-lift in `.dark`,
 	   where the two lightnesses sit only 0.09 apart and the border, not the
@@ -103,7 +103,7 @@
 	--ev-accent: oklch(0.792 0.128 197);
 	--ev-accent-hover: oklch(0.872 0.101 198);
 	--ev-accent-muted: oklch(0.792 0.128 197 / 0.16);
-	--ev-accent-alt: oklch(0.802 0.132 48);
+	--ev-accent-alt: oklch(0.8 0.13 140);
 
 	--ev-rule: oklch(1 0 0 / 0.13);
 	--ev-rule-strong: oklch(1 0 0 / 0.28);
@@ -176,24 +176,25 @@
    shadow all but disappears. Lightness alone never carries the distinction in
    either theme; that is the point. */
 .dark {
-	--ground-bg-canvas: oklch(0.152 0.009 55);
-	--ground-bg-surface: oklch(0.196 0.011 55);
-	--ground-bg-sunken: oklch(0.122 0.008 55);
+	--ground-bg-canvas: oklch(0.15 0.012 195);
+	--ground-bg-surface: oklch(0.196 0.014 195);
+	--ground-bg-sunken: oklch(0.12 0.009 195);
 
-	--ground-text-primary: oklch(0.951 0.005 60);
-	--ground-text-secondary: oklch(0.742 0.012 60);
-	--ground-text-tertiary: oklch(0.662 0.014 60);
-	--ground-text-quaternary: oklch(0.588 0.013 60);
+	--ground-text-primary: oklch(0.951 0.005 175);
+	--ground-text-secondary: oklch(0.742 0.012 175);
+	--ground-text-tertiary: oklch(0.662 0.014 175);
+	--ground-text-quaternary: oklch(0.588 0.013 175);
 
-	--ground-accent: oklch(0.712 0.148 42);
-	--ground-accent-hover: oklch(0.788 0.128 44);
-	--ground-accent-muted: oklch(0.712 0.148 42 / 0.15);
-	--ground-accent-alt: oklch(0.792 0.128 197);
+	--ground-accent: oklch(0.77 0.12 188);
+	--ground-accent-hover: oklch(0.83 0.1 188);
+	--ground-accent-muted: oklch(0.77 0.12 188 / 0.15);
+	--ground-accent-alt: oklch(0.78 0.13 145);
+	--claim-marker: oklch(0.44 0.13 192); /* screen blend: lifts the dark ground, keeps light text light */
 
 	--ground-rule: oklch(1 0 0 / 0.14);
 	--ground-rule-strong: oklch(1 0 0 / 0.26);
 	--ground-border: oklch(1 0 0 / 0.09);
-	--ground-shadow-color: 30 10% 4%;
+	--ground-shadow-color: 190 18% 4%;
 
 	--ev-bg: oklch(0.243 0.032 252);
 	--ev-bg-raised: oklch(0.285 0.034 252);
@@ -471,7 +472,7 @@ p {
 	letter-spacing: 0.045em;
 }
 
-/* The colour is a default, not a decision — `:where()` strips it to zero
+/* /* The colour is a default, not a decision — `:where()` strips it to zero
    specificity so any text-* utility on the same element wins.
    It matters: this stylesheet loads after Tailwind's utilities, so an ordinary
    `.meta { color }` beats `.text-accent` on a tie and every accent label on the
@@ -510,6 +511,39 @@ a:where(.time) {
 .claim-sm {
 	font-size: var(--text-h3);
 	line-height: 1.24;
+}
+
+.claim-mark {
+	display: inline-block;
+	position: relative;
+	z-index: 0;
+	isolation: isolate;
+	font-style: normal;
+	white-space: nowrap;
+}
+
+.claim-mark::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: -0.035em;
+	bottom: -0.12em;
+	background: var(--claim-marker);
+	-webkit-mask-image: url('/claim-marker.svg?v=5');
+	-webkit-mask-size: 100% 100%;
+	-webkit-mask-repeat: no-repeat;
+	mask-image: url('/claim-marker.svg?v=5');
+	mask-mode: alpha;
+	mask-size: 100% 100%;
+	mask-repeat: no-repeat;
+	mix-blend-mode: multiply;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.dark .claim-mark::after {
+	mix-blend-mode: screen;
 }
 
 /* Page frame. One frame, every route: the header and footer are site
@@ -586,15 +620,17 @@ a:where(.time) {
    Every list on the site — practice, writing, milestones, certifications — is
    a rule-divided row rather than a card. One recipe, so structurally different
    sections stop looking interchangeable while still belonging to one system.
-
-   The hover moves the row's own inline padding rather than lifting it off the
-   page: nothing to raise means nothing to cast the same shadow every card on
-   the web casts, and the motion runs along the reading direction. */
+   Rows do not react to hover as a whole; the link inside carries its own cue. */
 .rows {
 	border-block: 1px solid var(--rule);
 }
 
-.rows > * + * {
+/* Zero specificity, so a utility on the same list can switch the stacked
+   divider off. Side-by-side layouts (`lg:[&>*+*]:border-t-0` plus `divide-x`)
+   draw their dividers vertically; with a plain `.rows > * + *` this rule won
+   the tie on source order and every card after the first kept a top border of
+   its own, doubled against the list's. */
+:where(.rows > * + *) {
 	border-top: 1px solid var(--rule);
 }
 
@@ -605,19 +641,6 @@ a:where(.time) {
    any utility on the same element wins. Same trap as `.meta` above. */
 :where(.row-link) {
 	display: block;
-}
-
-.row-link {
-	padding-inline-start: 0;
-	transition:
-		padding-inline-start var(--dur-slow) var(--ease-glide),
-		background-color var(--dur) var(--ease-glide);
-}
-
-.row-link:hover,
-.row-link:focus-within {
-	padding-inline-start: 0.85rem;
-	background-color: var(--bg-sunken);
 }
 
 /* Section heading lockup, shared so the rhythm is consistent even though the
@@ -741,10 +764,10 @@ a:where(.time) {
 	position: absolute;
 	left: 50%;
 	top: var(--progress);
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-	background: var(--accent);
+	width: 13px;
+	height: 8px;
+	border-radius: 0;
+	background: linear-gradient(to bottom, var(--accent) 0 2px, transparent 2px 3px, var(--accent-alt) 3px 5px, transparent 5px 6px, var(--accent) 6px 8px);
 	translate: -50% -50%;
 	scale: calc(1 + 0.16 * sin(var(--flow) * 1turn));
 	opacity: calc(0.55 + 0.45 * sin(var(--flow) * 1turn));
@@ -757,6 +780,23 @@ a:where(.time) {
 @media (min-width: 64rem) {
 	.shell-river {
 		padding-inline-start: calc(2.5rem + 3.25rem);
+	}
+}
+
+/* The footer's closing row runs its hairline out to the footer's own edges
+   rather than stopping at the text column. Negative margins take back exactly
+   the padding `.shell` (and `.shell-river`, from the large breakpoint) put
+   there, and the same amount is put back as padding, so the text stays on the
+   page's column while the rule lines up with the footer's top border. */
+.footer-bleed {
+	margin-inline: calc(var(--shell-pad) * -1);
+	padding-inline: var(--shell-pad);
+}
+
+@media (min-width: 64rem) {
+	.footer-bleed {
+		margin-inline-start: calc((var(--shell-pad) + 3.25rem) * -1);
+		padding-inline-start: calc(var(--shell-pad) + 3.25rem);
 	}
 }
 
@@ -802,7 +842,27 @@ a:where(.time) {
 	z-index: 0;
 	width: 100%;
 	height: 100%;
+	/* Strokes are thin and drawn at partial alpha that the trail fade then
+	   erodes, so what actually lands on screen is a small fraction of the
+	   canvas opacity. Night needs more of it than day: the light-teal strokes
+	   sit on a near-black ground where the same alpha reads far weaker than
+	   the dark strokes do on paper. */
+	opacity: 0.6;
 	pointer-events: none;
+}
+
+.dark .signal-field {
+	opacity: 0.5;
+}
+
+@media (max-width: 47.999rem) {
+	.signal-field {
+		opacity: 0.38;
+	}
+
+	.dark .signal-field {
+		opacity: 0.3;
+	}
 }
 
 /* ---- Long-form -----------------------------------------------------------
@@ -1334,45 +1394,6 @@ a:where(.time) {
 @supports not (backdrop-filter: blur(1px)) {
 	[data-header] {
 		background-color: var(--bg-canvas);
-	}
-}
-
-/* ---- Practice cards, glass on hover ----------------------------------------
-   The four "Practice" entries (Foundation/Blooming/Mastery/Building) sit
-   directly on the ground, not on an ink plane, so there is no panel to make
-   translucent at rest. Instead glass appears on interaction: hovering
-   materializes a frosted card out of the plain page. margin/padding-inline
-   cancel out at rest (so the resting layout is pixel-identical to a plain
-   article), and only paint properties change on hover — no layout shift, per
-   60fps-animation. `hover: hover` guards touch, where hover states stick. */
-.practice-card {
-	position: relative;
-	margin-inline: -1.25rem;
-	padding-inline: 1.25rem;
-	border-radius: 1rem;
-	border: 1px solid transparent;
-	transition:
-		background-color 300ms ease,
-		backdrop-filter 300ms ease,
-		box-shadow 300ms ease,
-		border-color 300ms ease;
-}
-
-@media (hover: hover) {
-	.practice-card:hover {
-		background-color: color-mix(in oklch, var(--bg-canvas) 55%, transparent);
-		backdrop-filter: blur(18px) saturate(150%);
-		-webkit-backdrop-filter: blur(18px) saturate(150%);
-		border-color: color-mix(in oklch, var(--accent) 30%, var(--rule));
-		box-shadow: 0 20px 40px -28px hsl(var(--shadow-color) / 0.5);
-	}
-}
-
-@media (prefers-reduced-transparency: reduce) {
-	.practice-card:hover {
-		background-color: var(--bg-sunken);
-		backdrop-filter: none;
-		-webkit-backdrop-filter: none;
 	}
 }
 

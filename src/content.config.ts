@@ -1,4 +1,6 @@
-import { defineCollection, z } from 'astro:content'
+import { glob } from 'astro/loaders'
+import { z } from 'astro/zod'
+import { defineCollection } from 'astro:content'
 
 /* One collection. One author. One river.
  *
@@ -45,6 +47,9 @@ export const BEATS = ['frontend', 'backend', 'trajectory'] as const
 export const FORMS = ['post', 'project'] as const
 
 const writing = defineCollection({
+	/* Entry ids come from each file's frontmatter `slug`, which is what the
+	   glob loader prefers over the file path, so the URLs are unchanged. */
+	loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
 	schema: z.object({
 		title: z.string(),
 		description: z.string().optional(),

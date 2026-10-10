@@ -14,7 +14,7 @@
 	gone from the site, so it is gone from here.
 
 	Every value below is copied from src/styles/tokens.css in oklch, day theme,
-	because a card has no theme to follow and cream stands out in a feed that is
+	because a card has no theme to follow and the mineral ground stands out in a feed that is
 	mostly white. Changing a token there means changing it here.
 
 	To regenerate after a copy change:
@@ -69,12 +69,12 @@
 				display: flex;
 				flex-direction: column;
 				padding: 58px 72px 56px;
-				background: oklch(0.981 0.004 85);
-				color: oklch(0.158 0.012 55);
+				background: oklch(0.979 0.008 160);
+				color: oklch(0.17 0.012 175);
 
-				--muted: oklch(0.512 0.016 55);
-				--accent: oklch(0.567 0.185 34);
-				--rule-strong: oklch(0.158 0 0 / 0.22);
+				--muted: oklch(0.512 0.016 175);
+				--accent: oklch(0.44 0.13 192);
+				--rule-strong: oklch(0.17 0 0 / 0.22);
 
 				--ev-bg: oklch(0.222 0.028 252);
 				--ev-text: oklch(0.958 0.006 240);
@@ -147,8 +147,21 @@
 			}
 
 			h1 em {
-				font-style: italic;
-				color: var(--accent);
+				position: relative;
+				z-index: 0;
+				isolation: isolate;
+				font-style: normal;
+			}
+
+			h1 em::after {
+				content: '';
+				position: absolute;
+				left: 0;
+				right: 0;
+				bottom: 0.02em;
+				height: 0.075em;
+				background: var(--accent);
+				z-index: -1;
 			}
 
 			/* The one mark on the site. Kept at the claim's baseline rather than
@@ -172,8 +185,8 @@
 				border-radius: 18px;
 				box-shadow:
 					0 1px 1px oklch(0.158 0 0 / 0.04),
-					0 18px 36px -20px hsl(30 8% 45% / 0.5),
-					0 4px 10px -6px hsl(30 8% 45% / 0.25);
+					0 18px 36px -20px hsl(154 10% 42% / 0.5),
+					0 4px 10px -6px hsl(154 10% 42% / 0.25);
 			}
 
 			/* The hairline of light along the top edge, which is what stops the

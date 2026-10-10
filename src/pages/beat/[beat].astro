@@ -3,6 +3,7 @@ import Layout from '../../Layout.astro'
 import WritingList from '@components/WritingList.astro'
 import { beats, beatTone, forms, type Beat, type Form } from '@lib/consts'
 import { getCollection } from 'astro:content'
+import { byNewest } from '@lib/utils'
 
 /* One page per beat, generated rather than filtered in the browser.
  *
@@ -21,7 +22,7 @@ export async function getStaticPaths() {
 		params: { beat: key },
 		props: {
 			beat: key,
-			entries: all.filter((entry) => entry.data.beat === key).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+			entries: all.filter((entry) => entry.data.beat === key).sort(byNewest)
 		}
 	}))
 }

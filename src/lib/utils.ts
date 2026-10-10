@@ -24,10 +24,13 @@ export const getTaxonomy = async (collection: any, name: string) => {
 	return taxonomy
 }
 
-export const sortByDate = (array: any[]) => {
-	const sortedArray = array.sort((a: any, b: any) => new Date(b.data.date && b.data.date).valueOf() - new Date(a.data.date && a.data.date).valueOf())
-	return sortedArray
-}
+/* Newest first. Two entries can share a date, and the collection's own order is
+   not a contract — the glob loader and the old file-path ordering disagree on
+   ties, which reshuffled prev/next and the home list when they moved. The id
+   tiebreak makes the order a property of the data. */
+export const byNewest = (a: any, b: any) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf() || b.id.localeCompare(a.id)
+
+export const sortByDate = (array: any[]) => array.sort(byNewest)
 
 export const similarItems = (currentItem: any, allItems: any, slug: string) => {
 	let categories: [] = []
@@ -53,7 +56,7 @@ export const similarItems = (currentItem: any, allItems: any, slug: string) => {
 	const mergedItems = [...new Set([...filterByCategories, ...filterByTags])]
 
 	// filter by slug
-	const filterBySlug = mergedItems.filter((product) => product.slug !== slug)
+	const filterBySlug = mergedItems.filter((product) => product.id !== slug)
 
 	return filterBySlug
 }
@@ -76,7 +79,9 @@ export const humanize = (content: string) => {
 		.replace(/\b[a-z]+\b/gi, (word) => (ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word))
 }
 
-export const readingTime = (content: string) => {
+/* `body` is optional on entries from the glob loader (it is absent for entries
+   with no content), so an undefined body reads as an empty one. */
+export const readingTime = (content: string = '') => {
 	const WPS = 275 / 60
 
 	let images = 0

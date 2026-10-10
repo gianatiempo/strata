@@ -1,0 +1,31 @@
+/* Tailwind 4, with its cascade layers switched off for utilities.
+
+   tokens.css is the site's own stylesheet and was written against Tailwind 3's
+   flat cascade: it loads after the utilities, wins same-specificity ties, and
+   loses to anything more specific (`.text-display` over a bare `h1`; its
+   `:where()` defaults over nothing). Tailwind 4 normally wraps utilities in a
+   `@layer`, and layer order outranks specificity, so either order of the two
+   sheets breaks one of those rules. Importing the parts individually, with
+   utilities left unlayered, restores the flat cascade the file expects: theme
+   and preflight stay layered underneath, utilities and tokens.css sit on top
+   in source order, exactly as before. */
+@layer theme, base;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
+@config '../../tailwind.config.mjs';
+@plugin '@tailwindcss/typography';
+@import './tokens.css';
+
+/* Tailwind 3 read `borderColor.DEFAULT` from the config as the colour of a bare
+   `border`; Tailwind 4 defaults to currentColor and ignores it. */
+@layer base {
+	*,
+	::before,
+	::after,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--border);
+	}
+}

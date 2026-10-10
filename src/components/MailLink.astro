@@ -30,7 +30,7 @@ const u = Buffer.from(user).toString('base64')
 const d = Buffer.from(domain).toString('base64')
 ---
 
-<a data-mail-u={u} data-mail-d={d} class={className}>
+<a data-mail-u={u} data-mail-d={d} data-umami-event="email-click" class={className}>
 	<slot />
 </a>
 
@@ -41,7 +41,7 @@ const d = Buffer.from(domain).toString('base64')
 </noscript>
 
 <script>
-	/* Registered on `document`, which survives a ViewTransitions swap, and run
+	/* Registered on `document`, which survives a ClientRouter swap, and run
 	   again on every navigation: a hoisted module script is evaluated once per
 	   full page load, so without the `astro:page-load` pass the second page you
 	   visit would keep an unwired link. */

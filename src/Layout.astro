@@ -4,8 +4,8 @@ import AppHeader from './AppHeader.astro'
 import SignalField from '@components/SignalField.astro'
 import Spine from '@components/Spine.astro'
 import { SITE } from './lib/consts'
-import { ViewTransitions } from 'astro:transitions'
-import './styles/tokens.css'
+import { ClientRouter } from 'astro:transitions'
+import './styles/tailwind.css'
 
 export interface Props {
 	title?: string
@@ -36,8 +36,7 @@ const ogImageUrl = new URL(image, Astro.site).href
    file means changing this line in the same commit. Pages that render their own
    card pass `imageAlt` instead, generated from the same inputs as the picture. */
 const ogImageAlt =
-	imageAlt ??
-	'Ariel Gianatiempo, Málaga, Spain. "Nineteen years making complicated software easier to use", set large in a serif on cream beside a blue brush-drawn ensō, above a dark panel reading Front-End, last eleven years; Back-End, eight years; Python, one day, now day one; AI, getting started.'
+	imageAlt ?? 'Ariel Gianatiempo, Málaga, Spain. "Nineteen years making complicated software easier to use", set large in a serif with a teal annotation mark above a dark evidence panel.'
 ---
 
 <!doctype html>
@@ -51,11 +50,24 @@ const ogImageAlt =
 		<meta name="color-scheme" content="dark light" />
 		<!-- Matches --bg-canvas in both themes, so mobile browser chrome blends
 		     into the page instead of framing it. -->
-		<meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)" />
-		<meta name="theme-color" content="#1c1a19" media="(prefers-color-scheme: dark)" />
+		<meta name="theme-color" content="#f4faf6" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#060d0d" media="(prefers-color-scheme: dark)" />
 
 		<!-- Canonical URL -->
 		<link rel="canonical" href={canonicalURL} />
+
+		<!-- Google Search Console ownership verification (URL-prefix property). Leave it in: removing it un-verifies the property. -->
+		<meta name="google-site-verification" content="M3oEXFsD27uuZtLo00r-AHz_K4PggvazX118tQW0FSk" />
+
+		<!-- Feed autodiscovery: lets a reader app or browser find the feed from any page, home included. -->
+		<!-- Umami Cloud (EU region): cookieless, no consent banner needed. `data-domains`
+		     restricts it to the live hostname, so localhost and deploy previews never
+		     count. It follows ClientRouter navigations on its own, because those go
+		     through history.pushState, which the script hooks. Custom events are the
+		     `data-umami-event` attributes on the contact, resume and social links. -->
+		<script is:inline defer src="https://cloud.umami.is/script.js" data-website-id="5e8fc3a7-146a-4554-a6d4-708b2eb37519" data-domains={Astro.site?.hostname}></script>
+
+		<link rel="alternate" type="application/rss+xml" title={`${SITE.TITLE} — writing`} href={new URL('rss.xml', Astro.site).href} />
 
 		<!-- Primary Meta Tags -->
 		<title>{pageTitle}</title>
@@ -87,7 +99,7 @@ const ogImageAlt =
 		<meta name="twitter:image" content={ogImageUrl} />
 		<meta name="twitter:image:alt" content={ogImageAlt} />
 
-		<ViewTransitions />
+		<ClientRouter />
 
 		<script is:inline>
 			// Must run before paint, or the wrong theme flashes on first load.

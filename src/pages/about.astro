@@ -33,7 +33,7 @@ import { certifications, facts, practice, SITE } from '@lib/consts'
 			<p class="label tick mb-7 text-accent" data-enter style="--enter:0">About</p>
 
 			<h1 class="max-w-title text-display leading-[0.93] tracking-[-0.03em]" data-enter style="--enter:1">
-				I'm choosing to be a beginner&nbsp;<em class="italic text-accent">again</em>.
+				I'm choosing to be a beginner&nbsp;<em class="claim-mark">again</em>.
 			</h1>
 
 			<!-- The account at measure, the receipts raised into it. A run-around
@@ -68,7 +68,7 @@ import { certifications, facts, practice, SITE } from '@lib/consts'
 
 				<div class="space-y-5 text-body-lg text-secondary">
 					<p data-enter style="--enter:3">
-						I started in 2007 writing Java Back-Ends. School systems, government work, and eventually airline loyalty at Hewlett-Packard. Eight years of that, and then AngularJS made the browser look
+						I started in 2007 writing Java. School systems, government work, and eventually airline loyalty at Hewlett-Packard. Eight years of that, and then AngularJS made the browser look
 						like the interesting place to be, so I went. I stayed eleven years.
 					</p>
 					<p data-enter style="--enter:4">
@@ -106,11 +106,7 @@ import { certifications, facts, practice, SITE } from '@lib/consts'
 			<div class="rows">
 				{
 					practice.map((item, i) => (
-						<article
-							class="practice-card grid grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-5 py-9 lg:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]"
-							data-resolve
-							style={`--i:${i}`}
-						>
+						<article class="grid grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-5 py-9 lg:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]" data-resolve style={`--i:${i}`}>
 							<div class="flex items-baseline gap-4 lg:flex-col lg:items-start lg:gap-2">
 								<span class="time text-quaternary" aria-hidden="true">
 									{String(i + 1).padStart(2, '0')}

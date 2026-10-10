@@ -80,6 +80,5 @@ export default {
 				glide: 'var(--ease-glide)'
 			}
 		}
-	},
-	plugins: [require('@tailwindcss/typography')]
+	}
 }

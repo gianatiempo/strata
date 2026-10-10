@@ -12,7 +12,7 @@ export const SITE: Site = {
 
 /* The masthead of the writing. Three beats — the two ends of the job, and the
    business of picking one of them back up. `beat` lives on the post schema
-   (src/content/config.ts); this is only how each one is presented.
+   (src/content.config.ts); this is only how each one is presented.
 
    Note what these are NOT for. An earlier version of this site used them to
    argue that front-end work and model work belonged together, which was a

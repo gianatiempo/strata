@@ -4,8 +4,8 @@ const { prevPost, nextPost } = Astro.props
 
 <nav class="grid gap-px border-y border-rule sm:grid-cols-2" aria-label="Writing navigation">
 	{
-		prevPost?.slug ? (
-			<a href={`/writing/${prevPost.slug}`} class="group py-8 pr-6 transition-colors duration-300 ease-out">
+		prevPost?.id ? (
+			<a href={`/writing/${prevPost.id}`} class="group py-8 pr-6 transition-colors duration-300 ease-out">
 				<p class="label mb-2">← Previous</p>
 				<p class="font-display text-h3 leading-snug text-primary transition-colors duration-300 ease-out group-hover:text-accent">{prevPost.data.title}</p>
 			</a>
@@ -15,8 +15,8 @@ const { prevPost, nextPost } = Astro.props
 	}
 
 	{
-		nextPost?.slug ? (
-			<a href={`/writing/${nextPost.slug}`} class="group py-8 sm:border-l sm:border-rule sm:pl-6 sm:text-right">
+		nextPost?.id ? (
+			<a href={`/writing/${nextPost.id}`} class="group py-8 sm:border-l sm:border-rule sm:pl-6 sm:text-right">
 				<p class="label mb-2">Next →</p>
 				<p class="font-display text-h3 leading-snug text-primary transition-colors duration-300 ease-out group-hover:text-accent">{nextPost.data.title}</p>
 			</a>
