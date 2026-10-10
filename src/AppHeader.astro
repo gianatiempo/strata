@@ -22,8 +22,8 @@ import { links } from '@lib/consts'
      The nav is four items now and the breakpoint came down with it: seven
      needed `lg` to fit, four fit at `sm`, so most phones get the real nav
      instead of a disclosure button hiding four links. -->
-<header data-header class="fixed inset-x-0 top-0 z-50 border-b [--header-pad:1.125rem]">
-	<div class="shell flex items-center justify-between gap-6" style="padding-block: var(--header-pad); transition: padding-block 320ms var(--ease-glide)">
+<header data-header class="absolute inset-x-0 top-0 z-50 border-b [--header-pad:1.125rem]">
+	<div class="shell flex items-center justify-between gap-6" style="padding-block: var(--header-pad)">
 		<a href="/" class="label link-sweep text-primary hover:text-accent">Ariel Gianatiempo</a>
 
 		<nav class="hidden sm:block" aria-label="Primary">

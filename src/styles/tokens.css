@@ -515,9 +515,10 @@ a:where(.time) {
 
 .claim-mark {
 	display: inline-block;
+	/* No z-index/isolation here: a stacking context on the word would keep the
+	   marker above any text outside it (the "Full" in Full<em>stack</em>) when it
+	   overshoots. Without one, -1 drops it behind every glyph nearby. */
 	position: relative;
-	z-index: 0;
-	isolation: isolate;
 	font-style: normal;
 	white-space: nowrap;
 }
@@ -525,10 +526,12 @@ a:where(.time) {
 .claim-mark::after {
 	content: '';
 	position: absolute;
-	left: 0;
-	right: 0;
-	top: -0.035em;
-	bottom: -0.12em;
+	/* Overshoot both ends, like a real marker that lands before the word and
+	   lifts off after it. */
+	left: -0.2em;
+	right: -0.1em;
+	top: -0.05em;
+	bottom: -0.1em;
 	background: var(--claim-marker);
 	-webkit-mask-image: url('/claim-marker.svg?v=5');
 	-webkit-mask-size: 100% 100%;
@@ -537,13 +540,22 @@ a:where(.time) {
 	mask-mode: alpha;
 	mask-size: 100% 100%;
 	mask-repeat: no-repeat;
-	mix-blend-mode: multiply;
-	z-index: 1;
+	/* Behind the glyphs, including neighbouring text. No blend needed, the text stays on top. */
+	z-index: -1;
 	pointer-events: none;
 }
 
-.dark .claim-mark::after {
-	mix-blend-mode: screen;
+/* Short-word variant: the stock marker is a long, flat swipe that only reads
+   well across a long word. This one is a fat scribble blob for words of three
+   or four letters, and bleeds past the glyphs a little so it still looks drawn
+   rather than fitted. */
+.claim-mark-short::after {
+	left: -0.2em;
+	right: -0.2em;
+	top: -0.05em;
+	bottom: -0.05em;
+	-webkit-mask-image: url('/claim-marker-short.svg?v=1');
+	mask-image: url('/claim-marker-short.svg?v=1');
 }
 
 /* Page frame. One frame, every route: the header and footer are site
@@ -701,7 +713,7 @@ a:where(.time) {
 }
 
 /* Starts below the header rather than at the top of the document. The header
-   is opaque and fixed, so a line that began at y=0 would spend its first 4.5rem
+   is fixed, so a line that began at y=0 would spend its first 4.5rem
    — and, at rest, its marker — hidden behind it. */
 .spine {
 	position: absolute;
@@ -1346,16 +1358,6 @@ a:where(.time) {
 	initial-value: 1.125rem;
 }
 
-/* Leaving the masthead: the bar tightens and grows an edge as it condenses.
-   No opaque `background-color` snap here — the header is glass throughout
-   the scroll range (see [data-header] below), not just once condensed. */
-@keyframes header-condense {
-	to {
-		--header-pad: 0.625rem;
-		box-shadow: 0 1px 24px -12px hsl(var(--shadow-color) / 0.5);
-	}
-}
-
 /* ---- The header, glass -----------------------------------------------------
    "Our own take" rather than a redo of the four-layer progressive veil the
    comment above the header once described and rejected: one fixed blur
@@ -1367,34 +1369,20 @@ a:where(.time) {
    version's border, which only appeared once condensed — is always visible:
    a translucent panel needs a defined edge from the very top of the page. */
 [data-header] {
-	background-color: color-mix(in oklch, var(--bg-canvas) 82%, transparent);
-	backdrop-filter: blur(14px) saturate(140%);
-	-webkit-backdrop-filter: blur(14px) saturate(140%);
-	border-color: color-mix(in oklch, var(--accent) 30%, var(--rule));
+	background-color: transparent;
+	border-color: transparent;
 }
 
+/* The bottom edge is a hairline that fades out toward both sides rather than
+   a full-width border, so the bar has no hard ends against the background. */
 [data-header]::after {
 	content: '';
 	position: absolute;
 	inset-inline: 0;
 	bottom: -1px;
 	height: 1px;
-	background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--accent) 55%, transparent), transparent);
+	background: linear-gradient(90deg, transparent 0, transparent 14%, color-mix(in oklch, var(--accent) 45%, var(--rule)) 40%, color-mix(in oklch, var(--accent) 45%, var(--rule)) 60%, transparent 86%, transparent 100%);
 	pointer-events: none;
-}
-
-@media (prefers-reduced-transparency: reduce) {
-	[data-header] {
-		background-color: var(--bg-canvas);
-		backdrop-filter: none;
-		-webkit-backdrop-filter: none;
-	}
-}
-
-@supports not (backdrop-filter: blur(1px)) {
-	[data-header] {
-		background-color: var(--bg-canvas);
-	}
 }
 
 /* A figure counting up to the value it already holds.
@@ -1450,14 +1438,7 @@ a:where(.time) {
 		}
 	}
 
-	/* Header condenses as you leave the masthead — scroll-linked, no listener. */
 	@supports (animation-timeline: scroll()) {
-		[data-header] {
-			animation: header-condense linear both;
-			animation-timeline: scroll(root block);
-			animation-range: 0 220px;
-		}
-
 		[data-progress] {
 			animation: progress-grow linear both;
 			animation-timeline: scroll(root block);
