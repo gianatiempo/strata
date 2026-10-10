@@ -34,10 +34,10 @@ To add an event to any other link, give the element `data-umami-event="your-even
 
 Visitors from LinkedIn, email and a CV all look like "direct" traffic unless the link says where it came from. Add a `utm_source` to the site link in each place:
 
-- [ ] LinkedIn profile: `https://arielgianatiempo.com/?utm_source=linkedin`
-- [ ] CV / resume PDF: `https://arielgianatiempo.com/?utm_source=cv`
-- [ ] Email signature: `https://arielgianatiempo.com/?utm_source=email`
-- [ ] GitHub profile README: `https://arielgianatiempo.com/?utm_source=github`
+- [x] LinkedIn profile: `https://arielgianatiempo.com/?utm_source=linkedin`
+- [x] CV / resume PDF: `https://arielgianatiempo.com/?utm_source=cv`
+- [x] Email signature: `https://arielgianatiempo.com/?utm_source=email`
+- [x] GitHub profile README: `https://arielgianatiempo.com/?utm_source=github`
 
 Umami reads these under **Campaigns** / **UTM** in the dashboard.
 
